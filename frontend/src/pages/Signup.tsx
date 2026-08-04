@@ -1,54 +1,11 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { CheckCircle, Send } from 'lucide-react';
-import { COMPANY } from '../lib/constants';
-import { leadApi } from '../lib/api';
-import { LeadRequest } from '../types';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import WhatsAppFloat from '../components/WhatsAppFloat';
 
-const INTERESTS = [
-  'Home Internet',
-  'Business Internet',
-  'Global Connectivity',
-  'VoIP & SMS',
-  'Renewable Solar Energy',
-  'General Enquiry',
-];
+const SPLYNX_SIGNUP_IFRAME_SRC =
+  'https://portal.panafricatelecom.co.za/admin/crm/sign-up?selected_internet=0&selected_voice=0&selected_recurring=0&selected_bundle=0&formTitle=Signup&formButtonText=Signup&submitThanks=Thank%20you%20for%20your%20sign%20up!%20%0A%0AOne%20of%20our%20admin%20will%20contact%20you%20shortly.%20%0AWhatsApp%3A%200871525695&required_tariff=1&vat_included=0&partner_id=1&admin_id=0&crm_status=1&location=1&show_form_terms=1&form_terms_template=86&required_first_name=1&required_last_name=1&required_email=1&required_phone=1&required_street=1&required_city=1&required_zip=0&required_referrer=0';
 
 export default function Signup() {
-  const [params] = useSearchParams();
-  const [form, setForm] = useState<LeadRequest>({
-    fullName: '',
-    email: '',
-    phone: '',
-    serviceInterest: params.get('service') || 'General Enquiry',
-    location: '',
-    message: '',
-  });
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
-
-  useEffect(() => {
-    const service = params.get('service');
-    if (service) {
-      setForm((f) => ({ ...f, serviceInterest: service }));
-    }
-  }, [params]);
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus('submitting');
-    try {
-      await leadApi.signup(form);
-      setStatus('success');
-      setForm({ fullName: '', email: '', phone: '', serviceInterest: 'General Enquiry', location: '', message: '' });
-    } catch {
-      setStatus('idle');
-      alert('Could not submit. Please try again or WhatsApp us.');
-    }
-  };
-
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
       <Header />
@@ -62,82 +19,18 @@ export default function Signup() {
               </p>
             </div>
 
-            <form onSubmit={submit} className="glass-card space-y-5 p-6 lg:p-10">
-              {status === 'success' ? (
-                <div className="rounded-xl bg-fibreEmerald/10 p-6 text-center text-fibreEmerald">
-                  <CheckCircle className="mx-auto mb-2" size={32} />
-                  <h2 className="text-xl font-bold">Thanks, {COMPANY.name} received your enquiry</h2>
-                  <p className="mt-1 text-sm">We will call or email you within one business day.</p>
-                  <button
-                    type="button"
-                    onClick={() => setStatus('idle')}
-                    className="btn-secondary mt-4 text-sm"
-                  >
-                    Send another
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <input
-                      required
-                      placeholder="Full name"
-                      value={form.fullName}
-                      onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                      className="input-field"
-                    />
-                    <input
-                      required
-                      type="email"
-                      placeholder="Email address"
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="input-field"
-                    />
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <input
-                      placeholder="Phone number"
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      className="input-field"
-                    />
-                    <input
-                      required
-                      placeholder="Town / street address"
-                      value={form.location}
-                      onChange={(e) => setForm({ ...form, location: e.target.value })}
-                      className="input-field"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">Service interest</label>
-                    <select
-                      value={form.serviceInterest}
-                      onChange={(e) => setForm({ ...form, serviceInterest: e.target.value })}
-                      className="input-field"
-                    >
-                      {INTERESTS.map((i) => (
-                        <option key={i} value={i}>{i}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <textarea
-                    rows={4}
-                    placeholder="Tell us more about what you need"
-                    value={form.message}
-                    onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className="input-field"
-                  />
-
-                  <button type="submit" disabled={status === 'submitting'} className="btn-primary w-full">
-                    {status === 'submitting' ? 'Sending…' : <><Send size={16} /> Send Enquiry</>}
-                  </button>
-                </>
-              )}
-            </form>
+            <div className="glass-card overflow-hidden p-0">
+              <iframe
+                data-widget-type="embedded"
+                title="Pan Africa Telecom Signup"
+                width="100%"
+                height="900"
+                src={SPLYNX_SIGNUP_IFRAME_SRC}
+                frameBorder="0"
+                id="splynx-signup-widget-frame"
+                className="block w-full"
+              />
+            </div>
           </div>
         </section>
       </main>

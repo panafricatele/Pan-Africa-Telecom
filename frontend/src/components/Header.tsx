@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Menu, Phone, ShoppingCart, X } from 'lucide-react';
+import { Menu, Moon, Phone, ShoppingCart, Sun, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { COMPANY } from '../lib/constants';
 import { useCart } from '../cart/CartContext';
+import { useDarkMode } from '../hooks/useDarkMode';
 import CartDrawer from '../cart/CartDrawer';
 
 const nav = [
@@ -17,6 +18,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const { count } = useCart();
+  const { isDark, toggle } = useDarkMode();
 
   return (
     <>
@@ -49,6 +51,13 @@ export default function Header() {
               )
             )}
             <button
+              onClick={toggle}
+              className="rounded-full p-2 text-slate-600 transition hover:bg-slate-100"
+              aria-label="Toggle dark mode"
+            >
+              {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <button
               onClick={() => setCartOpen(true)}
               className="relative rounded-full p-2 text-slate-600 transition hover:bg-slate-100"
               aria-label="Open cart"
@@ -67,6 +76,13 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2 md:hidden">
+            <button
+              onClick={toggle}
+              className="rounded-full p-2 text-slate-600 transition hover:bg-slate-100"
+              aria-label="Toggle dark mode"
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
             <button
               onClick={() => setCartOpen(true)}
               className="relative rounded-full p-2 text-slate-600 transition hover:bg-slate-100"

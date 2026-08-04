@@ -9,27 +9,46 @@
   }
   html, body, #root {
     min-height: 100vh;
-    @apply bg-slate-50 text-slate-900;
+    @apply bg-slate-50 text-slate-900 transition-colors duration-200;
   }
+  .dark html, .dark body, .dark #root {
+    @apply bg-slate-950 text-slate-100;
+  }
+
+  /* Broad dark-mode coverage: re-map the most frequently used light-mode
+     utility classes across the site so pages get a consistent dark theme
+     without needing dark: variants added to every element individually. */
+  .dark .bg-slate-50 { background-color: #0f172a; }
+  .dark .bg-white,
+  .dark .bg-white\/90,
+  .dark .bg-white\/95 { background-color: #1e293b; }
+  .dark .bg-slate-100 { background-color: #1e293b; }
+  .dark .bg-slate-200 { background-color: #334155; }
+  .dark .text-slate-900 { color: #f1f5f9; }
+  .dark .text-slate-600 { color: #cbd5e1; }
+  .dark .text-slate-500 { color: #94a3b8; }
+  .dark .text-slate-400 { color: #94a3b8; }
+  .dark .border-slate-200 { border-color: #334155; }
+  .dark .border-slate-300 { border-color: #475569; }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-white/95 border border-slate-200 rounded-2xl shadow-md;
+    @apply bg-white/95 border border-slate-200 rounded-2xl shadow-md dark:bg-slate-800/95 dark:border-slate-700;
   }
   .glow-blue {
     box-shadow: 0 0 24px -6px rgba(0, 136, 255, 0.25);
   }
   .photo-frame {
-    @apply overflow-hidden rounded-2xl border border-slate-200 shadow-md;
+    @apply overflow-hidden rounded-2xl border border-slate-200 shadow-md dark:border-slate-700;
   }
   .input-field {
-    @apply w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-telecomBlue focus:ring-1 focus:ring-telecomBlue;
+    @apply w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-telecomBlue focus:ring-1 focus:ring-telecomBlue dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500;
   }
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-xl bg-telecomBlue px-6 py-3 font-semibold text-white shadow-lg shadow-telecomBlue/25 transition hover:bg-blue-600 active:scale-[0.98];
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-slate-100 px-6 py-3 font-semibold text-slate-900 transition hover:bg-slate-200 active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-slate-100 px-6 py-3 font-semibold text-slate-900 transition hover:bg-slate-200 active:scale-[0.98] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700;
   }
 }

@@ -1,0 +1,90 @@
+[
+  {
+    "id": "int-newcastle",
+    "provider": "internal",
+    "type": "fibre",
+    "name": "Newcastle Fibre Network",
+    "keywords": ["newcastle", "marconi", "riverside industrial", "26 marconi drive"],
+    "estimatedSpeed": "Up to 200 Mbps"
+  },
+  {
+    "id": "int-osizweni",
+    "provider": "internal",
+    "type": "fixed-wireless",
+    "name": "Osizweni Fixed Wireless",
+    "keywords": ["osizweni"],
+    "estimatedSpeed": "Up to 50 Mbps"
+  },
+  {
+    "id": "int-madadeni",
+    "provider": "internal",
+    "type": "fixed-wireless",
+    "name": "Madadeni Fixed Wireless",
+    "keywords": ["madadeni"],
+    "estimatedSpeed": "Up to 50 Mbps"
+  },
+  {
+    "id": "int-eastcrest",
+    "provider": "internal",
+    "type": "fibre",
+    "name": "Eastcrest Fibre",
+    "keywords": ["eastcrest"],
+    "estimatedSpeed": "Up to 100 Mbps"
+  },
+  {
+    "id": "int-ingagane",
+    "provider": "internal",
+    "type": "fixed-wireless",
+    "name": "Ingagane Fixed Wireless",
+    "keywords": ["ingagane"],
+    "estimatedSpeed": "Up to 50 Mbps"
+  },
+  {
+    "id": "int-dannhauser",
+    "provider": "internal",
+    "type": "fixed-wireless",
+    "name": "Dannhauser Fixed Wireless",
+    "keywords": ["dannhauser"],
+    "estimatedSpeed": "Up to 50 Mbps"
+  },
+  {
+    "id": "int-vryheid",
+    "provider": "internal",
+    "type": "fixed-wireless",
+    "name": "Vryheid Fixed Wireless",
+    "keywords": ["vryheid"],
+    "estimatedSpeed": "Up to 50 Mbps"
+  },
+  {
+    "id": "int-dundee",
+    "provider": "internal",
+    "type": "fixed-wireless",
+    "name": "Dundee Fixed Wireless",
+    "keywords": ["dundee"],
+    "estimatedSpeed": "Up to 50 Mbps"
+  },
+  {
+    "id": "int-volksrust",
+    "provider": "internal",
+    "type": "fixed-wireless",
+    "name": "Volksrust Fixed Wireless",
+    "keywords": ["volksrust"],
+    "estimatedSpeed": "Up to 50 Mbps"
+  },
+  {
+    "id": "int-ladysmith",
+    "provider": "internal",
+    "type": "fixed-wireless",
+    "name": "Ladysmith Fixed Wireless",
+    "keywords": ["ladysmith"],
+    "estimatedSpeed": "Up to 50 Mbps"
+  },
+  {
+    "id": "int-utrecht",
+    "provider": "internal",
+    "type": "fixed-wireless",
+    "name": "Utrecht Fixed Wireless",
+    "keywords": ["utrecht"],
+    "estimatedSpeed": "Up to 50 Mbps"
+  }
+]

@@ -1,0 +1,233 @@
+<!doctype html><html><head><meta charset="utf-8"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@page { size: A3 landscape; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; color: #0f172a; background: #f8fafc; }
+h1, h2, h3 { font-family: 'Poppins', sans-serif; font-weight: 800; letter-spacing: -0.02em; margin: 0; }
+.page { width: 420mm; height: 297mm; padding: 16mm 20mm; position: relative; background: #f8fafc; page-break-after: always; overflow: hidden; }
+.page:last-child { page-break-after: auto; }
+.brand { position: absolute; top: 16mm; left: 20mm; }
+.brand .name { font-family: 'Poppins', sans-serif; font-size: 15pt; font-weight: 800; color: #0f172a; letter-spacing: -0.03em; }
+.brand .name span { color: #0088FF; }
+.brand .sub { font-size: 7pt; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(15,23,42,0.5); margin-top: 1mm; }
+.page-num { position: absolute; top: 16mm; right: 20mm; font-size: 8pt; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(15,23,42,0.4); }
+.cover { background: #0f172a; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+.cover .brand { position: static; }
+.cover .brand .name { color: white; font-size: 17pt; }
+.cover .brand .sub { color: rgba(255,255,255,0.35); }
+.cover .kicker { color: #0088FF; font-size: 9pt; letter-spacing: 0.3em; text-transform: uppercase; font-weight: 700; margin-bottom: 8mm; }
+.cover h1 { color: white; font-size: 44pt; line-height: 1.1; max-width: 260mm; margin-bottom: 8mm; }
+.cover h1 span { color: #0088FF; }
+.cover .sub { color: rgba(255,255,255,0.6); font-size: 12pt; max-width: 220mm; line-height: 1.65; margin-bottom: 10mm; }
+.cover .meta { position: absolute; bottom: 16mm; left: 20mm; right: 20mm; display: flex; justify-content: space-between; font-size: 8pt; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.25); }
+.section-header { margin-top: 24mm; margin-bottom: 8mm; }
+.section-header .kicker { font-size: 8pt; letter-spacing: 0.3em; text-transform: uppercase; color: #0088FF; margin-bottom: 3mm; font-weight: 700; }
+.section-header h2 { font-size: 28pt; color: #0f172a; }
+.section-header .desc { font-size: 10pt; color: rgba(15,23,42,0.6); margin-top: 4mm; max-width: 200mm; line-height: 1.6; }
+.layout { display: grid; grid-template-columns: 1.6fr 1fr; gap: 12mm; height: calc(100% - 55mm); }
+.frame { background: white; border-radius: 6pt; box-shadow: 0 10pt 36pt -10pt rgba(15,23,42,0.18); overflow: hidden; border: 1px solid rgba(15,23,42,0.07); }
+.frame-head { display: flex; align-items: center; gap: 6pt; padding: 5pt 9pt; background: #0f172a; font-size: 7pt; color: rgba(255,255,255,0.4); }
+.dot { width: 7pt; height: 7pt; border-radius: 50%; }
+.dot.r { background: #FF6B5B; } .dot.y { background: #FFC24C; } .dot.g { background: #10B981; }
+.frame-body { background: #f8fafc; }
+.desktop-img, .mobile-img { width: 100%; display: block; }
+.desktop-scroll { max-height: 170mm; overflow: hidden; }
+.caption { font-size: 7pt; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(15,23,42,0.5); margin-bottom: 2.5mm; font-weight: 600; }
+.mobile-frame { width: 72mm; margin: 0 auto; border: 2.5pt solid #0f172a; border-radius: 10pt; padding: 3pt; background: #0f172a; }
+.mobile-inner { max-height: 155mm; overflow: hidden; border-radius: 7pt; }
+.notes { padding: 5mm 6mm; background: white; border-left: 2.5pt solid #0088FF; border-radius: 0 4pt 4pt 0; font-size: 9.5pt; line-height: 1.6; color: rgba(15,23,42,0.75); }
+.notes b { color: #0f172a; }
+.specs { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-top: 5mm; }
+.spec { padding: 4mm 5mm; background: white; border-radius: 4pt; border: 1px solid rgba(15,23,42,0.07); }
+.spec .k { font-size: 7pt; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(15,23,42,0.5); margin-bottom: 1.5mm; font-weight: 600; }
+.spec .v { font-size: 10pt; color: #0f172a; font-weight: 600; font-family: 'Poppins', sans-serif; }
+.end-page .section-header { margin-top: 18mm; }
+.home-grid .section-header { margin-top: 22mm; margin-bottom: 6mm; }
+.home-grid .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; height: calc(100% - 65mm); }
+.home-grid .shot { background: white; border-radius: 5pt; overflow: hidden; border: 1px solid rgba(15,23,42,0.08); box-shadow: 0 6pt 22pt -8pt rgba(15,23,42,0.14); display: flex; flex-direction: column; }
+.home-grid .shot.wide { grid-column: span 2; }
+.home-grid .shot img { width: 100%; flex: 1; object-fit: cover; object-position: top; display: block; }
+.home-grid .shot-label { padding: 2.5mm 3mm; font-size: 8pt; font-weight: 700; color: #0f172a; font-family: 'Poppins', sans-serif; background: #f8fafc; border-top: 1px solid rgba(15,23,42,0.06); }
+</style></head><body>
+    <section class="page cover">
+      <div class="brand"><div class="name">Pan Africa Telecom <span>Website</span></div><div class="sub">Design Deck &middot; Every Section & Page</div></div>
+      <div class="page-num">01 / 10</div>
+      <p class="kicker">Pages, Components & User Flows</p>
+      <h1>Website design deck.<br/><span>Every page, every section.</span></h1>
+      <p class="sub">A visual walkthrough of the new multi-page website across desktop and mobile — Home, Shop, Support, Sign-up and the cart / checkout experience.</p>
+      <div class="meta"><span>26 Marconi Drive, Riverside Industrial, Newcastle, 2940, South Africa</span><span>034-0085055 &middot; info@PanAfricaTelecom.co.za</span></div>
+    </section>
+  
+    <section class="page home-grid">
+      <div class="brand"><div class="name">Pan Africa Telecom <span>Website</span></div><div class="sub">Home page sections</div></div>
+      <div class="page-num">02 / 10</div>
+      <div class="section-header">
+        <div class="kicker">01 &middot; Home</div>
+        <h2>Every home page section.</h2>
+        <p class="desc">Five scrollable sections that make up the landing page, captured at desktop viewport.</p>
+      </div>
+      <div class="grid">
+        
+          <div class="shot wide">
+            <img src="shots/home-section-hero.png" />
+            <div class="shot-label">01 &middot; Hero</div>
+          </div>
+        
+          <div class="shot ">
+            <img src="shots/home-section-network.png" />
+            <div class="shot-label">02 &middot; Network map</div>
+          </div>
+        
+          <div class="shot ">
+            <img src="shots/home-section-services.png" />
+            <div class="shot-label">03 &middot; Service explorer</div>
+          </div>
+        
+          <div class="shot ">
+            <img src="shots/home-section-speed.png" />
+            <div class="shot-label">04 &middot; Speed test</div>
+          </div>
+        
+          <div class="shot ">
+            <img src="shots/home-section-contact.png" />
+            <div class="shot-label">05 &middot; Contact & support</div>
+          </div>
+        
+      </div>
+    </section>
+  
+    <section class="page">
+      <div class="brand"><div class="name">Pan Africa Telecom <span>Website</span></div><div class="sub">Home</div></div>
+      <div class="page-num">03 / 10</div>
+      <div class="section-header">
+        <div class="kicker">01 &middot; Page</div>
+        <h2>Home page — coverage, services & trust</h2>
+        <p class="desc">The marketing landing page with hero, coverage checker, network map, service explorer, speed test, contact and support.</p>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="caption">Desktop &middot; 1440 &times; 900</div>
+          <div class="frame">
+            <div class="frame-head"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> panafricatelecom.co.za/</div>
+            <div class="frame-body desktop-scroll"><img class="desktop-img" src="shots/home-desktop.png" /></div>
+          </div>
+        </div>
+        <div>
+          <div class="caption">Mobile &middot; 390 &times; 844</div>
+          <div class="mobile-frame"><div class="mobile-inner"><img class="mobile-img" src="shots/home-mobile.png" /></div></div>
+        </div>
+      </div>
+    </section>
+    <section class="page end-page">
+      <div class="brand"><div class="name">Pan Africa Telecom <span>Website</span></div><div class="sub">Home &middot; Notes</div></div>
+      <div class="page-num">04 / 10</div>
+      <div class="section-header">
+        <div class="kicker">Design notes</div>
+        <h2>Home page — coverage, services & trust</h2>
+      </div>
+      <div class="notes">The <b>Hero</b> leads with the company slogan and an interactive coverage lookup. <b>NetworkMap</b> visualises the Newcastle backbone and coverage nodes. <b>ServiceExplorer</b> lets users filter packages by category and demand. <b>SpeedTestWidget</b> provides a live speed-test gauge. <b>ContactAndSupport</b> rounds out the page with a lead form and WhatsApp call-to-action.</div>
+      <div class="specs"><div class="spec"><div class="k">Hero</div><div class="v">Coverage checker + CTA</div></div><div class="spec"><div class="k">Network Map</div><div class="v">Animated SVG coverage</div></div><div class="spec"><div class="k">Service Explorer</div><div class="v">Slider-based package finder</div></div><div class="spec"><div class="k">Contact</div><div class="v">Lead form + WhatsApp</div></div></div>
+    </section>
+  
+    <section class="page">
+      <div class="brand"><div class="name">Pan Africa Telecom <span>Website</span></div><div class="sub">Shop</div></div>
+      <div class="page-num">05 / 10</div>
+      <div class="section-header">
+        <div class="kicker">02 &middot; Page</div>
+        <h2>Phone shop — catalog, cart & checkout</h2>
+        <p class="desc">The e-commerce page showing the IIIF150 A5Pro rugged phone range with real product photos, stock and PayFast checkout.</p>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="caption">Desktop &middot; 1440 &times; 900</div>
+          <div class="frame">
+            <div class="frame-head"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> panafricatelecom.co.za/shop</div>
+            <div class="frame-body desktop-scroll"><img class="desktop-img" src="shots/shop-desktop.png" /></div>
+          </div>
+        </div>
+        <div>
+          <div class="caption">Mobile &middot; 390 &times; 844</div>
+          <div class="mobile-frame"><div class="mobile-inner"><img class="mobile-img" src="shots/shop-mobile.png" /></div></div>
+        </div>
+      </div>
+    </section>
+    <section class="page end-page">
+      <div class="brand"><div class="name">Pan Africa Telecom <span>Website</span></div><div class="sub">Shop &middot; Notes</div></div>
+      <div class="page-num">06 / 10</div>
+      <div class="section-header">
+        <div class="kicker">Design notes</div>
+        <h2>Phone shop — catalog, cart & checkout</h2>
+      </div>
+      <div class="notes">The <b>Shop</b> page lists each phone variant with a real product image, price, stock count and an <b>Add to Cart</b> control. Clicking a product opens a spec modal. The header cart icon opens a drawer with quantity controls, customer details and a <b>Pay with PayFast</b> button that submits a server-signed payment form.</div>
+      <div class="specs"><div class="spec"><div class="k">Products</div><div class="v">IIIF150 A5Pro variants</div></div><div class="spec"><div class="k">Cart</div><div class="v">Add, update, remove, total</div></div><div class="spec"><div class="k">Checkout</div><div class="v">PayFast signed payload</div></div><div class="spec"><div class="k">Stock</div><div class="v">Live counts per colour</div></div></div>
+    </section>
+  
+    <section class="page">
+      <div class="brand"><div class="name">Pan Africa Telecom <span>Website</span></div><div class="sub">Support</div></div>
+      <div class="page-num">07 / 10</div>
+      <div class="section-header">
+        <div class="kicker">03 &middot; Page</div>
+        <h2>Support — log a ticket</h2>
+        <p class="desc">A dedicated support page where customers can raise technical, billing, sales or general tickets.</p>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="caption">Desktop &middot; 1440 &times; 900</div>
+          <div class="frame">
+            <div class="frame-head"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> panafricatelecom.co.za/support</div>
+            <div class="frame-body desktop-scroll"><img class="desktop-img" src="shots/support-desktop.png" /></div>
+          </div>
+        </div>
+        <div>
+          <div class="caption">Mobile &middot; 390 &times; 844</div>
+          <div class="mobile-frame"><div class="mobile-inner"><img class="mobile-img" src="shots/support-mobile.png" /></div></div>
+        </div>
+      </div>
+    </section>
+    <section class="page end-page">
+      <div class="brand"><div class="name">Pan Africa Telecom <span>Website</span></div><div class="sub">Support &middot; Notes</div></div>
+      <div class="page-num">08 / 10</div>
+      <div class="section-header">
+        <div class="kicker">Design notes</div>
+        <h2>Support — log a ticket</h2>
+      </div>
+      <div class="notes">The <b>Support</b> form captures full name, email, phone, ticket type, subject and message. The data is submitted to <code>/api/v1/tickets</code> and stored with a generated ticket ID. Success and error states are handled with clear user feedback.</div>
+      <div class="specs"><div class="spec"><div class="k">Ticket types</div><div class="v">Technical / Billing / Sales / General</div></div><div class="spec"><div class="k">Backend</div><div class="v">POST /api/v1/tickets</div></div><div class="spec"><div class="k">Validation</div><div class="v">Required fields + email</div></div><div class="spec"><div class="k">UX</div><div class="v">Clear success/error messages</div></div></div>
+    </section>
+  
+    <section class="page">
+      <div class="brand"><div class="name">Pan Africa Telecom <span>Website</span></div><div class="sub">Sign Up</div></div>
+      <div class="page-num">09 / 10</div>
+      <div class="section-header">
+        <div class="kicker">04 &middot; Page</div>
+        <h2>Sign up — service lead capture</h2>
+        <p class="desc">A dedicated lead-capture page for customers interested in internet, global connectivity, VoIP/SMS or solar services.</p>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="caption">Desktop &middot; 1440 &times; 900</div>
+          <div class="frame">
+            <div class="frame-head"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> panafricatelecom.co.za/signup</div>
+            <div class="frame-body desktop-scroll"><img class="desktop-img" src="shots/signup-desktop.png" /></div>
+          </div>
+        </div>
+        <div>
+          <div class="caption">Mobile &middot; 390 &times; 844</div>
+          <div class="mobile-frame"><div class="mobile-inner"><img class="mobile-img" src="shots/signup-mobile.png" /></div></div>
+        </div>
+      </div>
+    </section>
+    <section class="page end-page">
+      <div class="brand"><div class="name">Pan Africa Telecom <span>Website</span></div><div class="sub">Sign Up &middot; Notes</div></div>
+      <div class="page-num">10 / 10</div>
+      <div class="section-header">
+        <div class="kicker">Design notes</div>
+        <h2>Sign up — service lead capture</h2>
+      </div>
+      <div class="notes">The <b>Sign-up</b> form pre-fills the service of interest from query parameters (e.g. after clicking a package link). It posts to <code>/api/v1/leads/signup</code> and stores the lead for the sales team to follow up.</div>
+      <div class="specs"><div class="spec"><div class="k">Pre-fill</div><div class="v">?service= query support</div></div><div class="spec"><div class="k">Backend</div><div class="v">POST /api/v1/leads/signup</div></div><div class="spec"><div class="k">Fields</div><div class="v">Name, email, phone, interest, location</div></div><div class="spec"><div class="k">CTA</div><div class="v">Direct to WhatsApp fallback</div></div></div>
+    </section>
+  </body></html>

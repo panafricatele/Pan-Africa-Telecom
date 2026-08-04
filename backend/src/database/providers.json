@@ -1,0 +1,18 @@
+{
+  "telkomOpenserve": {
+    "id": "telkom-openserve",
+    "name": "Telkom / Openserve",
+    "enabled": true,
+    "baseUrl": "https://api.telkom.co.za/coverage",
+    "apiKey": "",
+    "mock": true
+  },
+  "evotel": {
+    "id": "evotel",
+    "name": "Evotel Fibre",
+    "enabled": true,
+    "baseUrl": "https://api.evotel.co.za/coverage",
+    "apiKey": "",
+    "mock": true
+  }
+}

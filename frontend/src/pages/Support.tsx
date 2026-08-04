@@ -6,6 +6,7 @@ import { TicketRequest } from '../types';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import WhatsAppFloat from '../components/WhatsAppFloat';
+import SplynxFeedbackWidget from '../components/SplynxFeedbackWidget';
 
 const TICKET_TYPES = [
   { id: 'technical', label: 'Technical fault' },
@@ -144,6 +145,7 @@ export default function Support() {
       </main>
       <Footer />
       <WhatsAppFloat />
+      <SplynxFeedbackWidget />
     </div>
   );
 }

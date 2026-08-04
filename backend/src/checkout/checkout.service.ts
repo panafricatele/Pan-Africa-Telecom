@@ -45,11 +45,15 @@ export class CheckoutService {
   constructor(private readonly phoneRepository: PhoneRepository) {}
 
   getPayFastConfig(): { merchantId: string; merchantKey: string; passphrase?: string; sandbox: boolean } {
+    // Trim defensively: copy-pasting credentials into Vercel's env var UI
+    // commonly introduces trailing whitespace/newlines, which silently
+    // breaks the signature since it becomes part of the hashed string.
+    const passphrase = process.env.PAYFAST_PASSPHRASE?.trim();
     return {
-      merchantId: process.env.PAYFAST_MERCHANT_ID || '',
-      merchantKey: process.env.PAYFAST_MERCHANT_KEY || '',
-      passphrase: process.env.PAYFAST_PASSPHRASE,
-      sandbox: process.env.PAYFAST_SANDBOX === 'true' || false,
+      merchantId: (process.env.PAYFAST_MERCHANT_ID || '').trim(),
+      merchantKey: (process.env.PAYFAST_MERCHANT_KEY || '').trim(),
+      passphrase: passphrase ? passphrase : undefined,
+      sandbox: process.env.PAYFAST_SANDBOX?.trim() === 'true',
     };
   }
 

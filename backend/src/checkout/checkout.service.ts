@@ -168,6 +168,17 @@ export class CheckoutService {
   }
 
   private urlEncode(value: string): string {
-    return encodeURIComponent(value).replace(/%20/g, '+');
+    // Mimic PHP's urlencode() (used by PayFast's backend to validate the
+    // signature), which percent-encodes !*'() while JS's encodeURIComponent
+    // leaves them unescaped. Mismatched encoding here causes PayFast's
+    // "Generated signature does not match submitted signature" error for
+    // any field containing these characters (e.g. item names with brackets).
+    return encodeURIComponent(value)
+      .replace(/%20/g, '+')
+      .replace(/!/g, '%21')
+      .replace(/'/g, '%27')
+      .replace(/\(/g, '%28')
+      .replace(/\)/g, '%29')
+      .replace(/\*/g, '%2A');
   }
 }

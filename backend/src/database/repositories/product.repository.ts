@@ -1,28 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import productsData from '../products.json';
 import { Product, ServiceCategory } from '../types';
 
 @Injectable()
 export class ProductRepository {
-  private products: Product[];
-  private readonly path = join(__dirname, '..', 'products.json');
-
-  constructor() {
-    this.load();
-  }
-
-  private load() {
-    const raw = readFileSync(this.path, 'utf8');
-    this.products = JSON.parse(raw) as Product[];
-  }
+  private products: Product[] = productsData as Product[];
 
   /**
-   * Reload products from disk. Useful after editing prices/packages
-   * without restarting the server (or call on a schedule).
+   * Reload products from the bundled dataset. Useful after editing
+   * prices/packages without restarting the server.
    */
   reload() {
-    this.load();
+    this.products = productsData as Product[];
   }
 
   findAll(category?: ServiceCategory, technology?: string): Product[] {

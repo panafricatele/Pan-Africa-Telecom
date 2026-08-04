@@ -1,24 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import coverageZonesData from '../coverage-zones.json';
 import { CoverageZone } from '../types';
 
 @Injectable()
 export class CoverageRepository {
-  private zones: CoverageZone[];
-  private readonly path = join(__dirname, '..', 'coverage-zones.json');
-
-  constructor() {
-    this.load();
-  }
-
-  private load() {
-    const raw = readFileSync(this.path, 'utf8');
-    this.zones = JSON.parse(raw) as CoverageZone[];
-  }
+  private zones: CoverageZone[] = coverageZonesData as CoverageZone[];
 
   reload() {
-    this.load();
+    this.zones = coverageZonesData as CoverageZone[];
   }
 
   findByLocation(rawLocation: string): CoverageZone[] {

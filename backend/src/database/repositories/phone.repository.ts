@@ -1,24 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import phonesData from '../phones.json';
 import { Phone } from '../types';
 
 @Injectable()
 export class PhoneRepository {
-  private phones: Phone[];
-  private readonly path = join(__dirname, '..', 'phones.json');
-
-  constructor() {
-    this.load();
-  }
-
-  private load() {
-    const raw = readFileSync(this.path, 'utf8');
-    this.phones = JSON.parse(raw) as Phone[];
-  }
+  private phones: Phone[] = phonesData as Phone[];
 
   reload() {
-    this.load();
+    this.phones = phonesData as Phone[];
   }
 
   findAll(): Phone[] {

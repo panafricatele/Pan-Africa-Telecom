@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Menu, Moon, Phone, ShoppingCart, Sun, X, LogIn, LogOut, LayoutDashboard, User } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Menu, Moon, Phone, ShoppingCart, Sun, X, LogOut, LayoutDashboard, UserCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { COMPANY } from '../lib/constants';
 import { useCart } from '../cart/CartContext';
@@ -77,26 +77,7 @@ export default function Header() {
                 </span>
               )}
             </button>
-            {user ? (
-              <>
-                {isAdmin && (
-                  <Link to="/admin" className="flex items-center gap-1.5 rounded-lg bg-telecomBlue/10 px-3 py-1.5 text-sm font-medium text-telecomBlue transition hover:bg-telecomBlue/20">
-                    <LayoutDashboard size={16} /> Dashboard
-                  </Link>
-                )}
-                <div className="flex items-center gap-2">
-                  <User size={16} className="text-slate-400" />
-                  <span className="text-sm text-slate-600">{profile?.full_name || user.email}</span>
-                </div>
-                <button onClick={handleSignOut} className="flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-red-500">
-                  <LogOut size={16} /> Sign Out
-                </button>
-              </>
-            ) : (
-              <Link to="/login" className="flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-telecomBlue">
-                <LogIn size={16} /> Login
-              </Link>
-            )}
+            <AccountMenu user={user} profile={profile} isAdmin={isAdmin} onSignOut={handleSignOut} />
             <a href={`tel:${COMPANY.phone}`} className="btn-primary text-sm">
               <Phone size={16} />
               {COMPANY.phone}
@@ -111,6 +92,7 @@ export default function Header() {
             >
               {isDark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
+            <AccountMenu user={user} profile={profile} isAdmin={isAdmin} onSignOut={handleSignOut} />
             <button
               onClick={() => setCartOpen(true)}
               className="relative rounded-full p-2 text-slate-600 transition hover:bg-slate-100"
@@ -154,22 +136,6 @@ export default function Header() {
               </a>
               )
             )}
-            {user ? (
-              <>
-                {isAdmin && (
-                  <Link to="/admin" onClick={() => setOpen(false)} className="flex items-center gap-1.5 text-sm font-medium text-telecomBlue">
-                    <LayoutDashboard size={16} /> Dashboard
-                  </Link>
-                )}
-                <button onClick={() => { handleSignOut(); setOpen(false); }} className="flex items-center gap-1.5 text-sm font-medium text-red-500">
-                  <LogOut size={16} /> Sign Out
-                </button>
-              </>
-            ) : (
-              <Link to="/login" onClick={() => setOpen(false)} className="flex items-center gap-1.5 text-sm font-medium text-telecomBlue">
-                <LogIn size={16} /> Login
-              </Link>
-            )}
             <a href={`tel:${COMPANY.phone}`} className="btn-primary text-sm">
               <Phone size={16} />
               {COMPANY.phone}
@@ -180,5 +146,79 @@ export default function Header() {
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Account icon + dropdown (sits next to the cart icon)               */
+/* ------------------------------------------------------------------ */
+
+interface AccountMenuProps {
+  user: ReturnType<typeof useAuth>['user'];
+  profile: ReturnType<typeof useAuth>['profile'];
+  isAdmin: boolean;
+  onSignOut: () => void;
+}
+
+function AccountMenu({ user, profile, isAdmin, onSignOut }: AccountMenuProps) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  if (!user) {
+    return (
+      <Link
+        to="/login"
+        className="rounded-full p-2 text-slate-600 transition hover:bg-slate-100"
+        aria-label="Sign in"
+      >
+        <UserCircle size={22} />
+      </Link>
+    );
+  }
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="rounded-full p-2 text-telecomBlue transition hover:bg-slate-100"
+        aria-label="Account menu"
+      >
+        <UserCircle size={22} />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-xl border border-slate-200 bg-white py-2 shadow-lg">
+          <div className="border-b border-slate-100 px-4 py-2">
+            <p className="text-sm font-semibold text-slate-900">{profile?.full_name || 'My Account'}</p>
+            <p className="truncate text-xs text-slate-500">{user.email}</p>
+          </div>
+
+          {isAdmin && (
+            <Link
+              to="/admin"
+              onClick={() => setOpen(false)}
+              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+            >
+              <LayoutDashboard size={15} /> Dashboard
+            </Link>
+          )}
+
+          <button
+            onClick={() => { onSignOut(); setOpen(false); }}
+            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+          >
+            <LogOut size={15} /> Sign Out
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

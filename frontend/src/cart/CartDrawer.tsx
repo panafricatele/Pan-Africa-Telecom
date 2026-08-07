@@ -41,7 +41,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
     try {
       const origin = window.location.origin;
       const { payment, action } = await checkoutApi.payfast({
-        items: items.map((i) => ({ phoneId: i.phone.id, quantity: i.quantity })),
+        items: items.map((i) => ({ phoneId: i.phone.id, quantity: i.quantity, name: i.phone.name, price: i.phone.price })),
         name,
         email,
         phone,

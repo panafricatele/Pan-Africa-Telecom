@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class CartItemDto {
@@ -9,6 +9,15 @@ class CartItemDto {
   @IsNotEmpty()
   @Type(() => Number)
   quantity: number;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  price?: number;
 }
 
 export class CheckoutDto {
@@ -28,13 +37,16 @@ export class CheckoutDto {
   @IsString()
   phone?: string;
 
-  @IsUrl()
+  @IsString()
+  @IsNotEmpty()
   returnUrl: string;
 
-  @IsUrl()
+  @IsString()
+  @IsNotEmpty()
   cancelUrl: string;
 
-  @IsUrl()
+  @IsString()
+  @IsNotEmpty()
   notifyUrl: string;
 
   @IsOptional()

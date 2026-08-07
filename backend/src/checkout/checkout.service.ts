@@ -6,6 +6,8 @@ import { Phone } from '../database/types';
 export interface CartItem {
   phoneId: string;
   quantity: number;
+  name?: string;
+  price?: number;
 }
 
 export interface PayFastPayment {
@@ -62,11 +64,20 @@ export class CheckoutService {
     const phoneMap = new Map(phones.map((p) => [p.id, p]));
 
     let total = 0;
-    const orderItems: { phone: Phone; quantity: number }[] = [];
+    const orderItems: { phone: Phone | { id: string; name: string; price: number; stock: number }; quantity: number }[] = [];
 
     for (const item of dto.items) {
       const phone = phoneMap.get(item.phoneId);
-      if (!phone) throw new Error(`Phone not found: ${item.phoneId}`);
+      if (!phone) {
+        // Product exists in Supabase but not in local JSON – use details from frontend
+        if (item.name && item.price != null) {
+          const virtual = { id: item.phoneId, name: item.name, price: item.price, stock: 999 };
+          total += virtual.price * item.quantity;
+          orderItems.push({ phone: virtual, quantity: item.quantity });
+          continue;
+        }
+        throw new Error(`Phone not found: ${item.phoneId}`);
+      }
       if (item.quantity > phone.stock) throw new Error(`Not enough stock for ${phone.name}`);
       total += phone.price * item.quantity;
       orderItems.push({ phone, quantity: item.quantity });

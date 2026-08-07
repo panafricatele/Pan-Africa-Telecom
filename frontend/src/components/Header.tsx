@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Menu, Moon, Phone, ShoppingCart, Sun, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Menu, Moon, Phone, ShoppingCart, Sun, X, LogIn, LogOut, LayoutDashboard, User } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { COMPANY } from '../lib/constants';
 import { useCart } from '../cart/CartContext';
+import { useAuth } from '../auth/AuthContext';
 import { useDarkMode } from '../hooks/useDarkMode';
 import CartDrawer from '../cart/CartDrawer';
 
@@ -19,6 +20,13 @@ export default function Header() {
   const [cartOpen, setCartOpen] = useState(false);
   const { count } = useCart();
   const { isDark, toggle } = useDarkMode();
+  const { user, profile, isAdmin, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <>
@@ -69,6 +77,26 @@ export default function Header() {
                 </span>
               )}
             </button>
+            {user ? (
+              <>
+                {isAdmin && (
+                  <Link to="/admin" className="flex items-center gap-1.5 rounded-lg bg-telecomBlue/10 px-3 py-1.5 text-sm font-medium text-telecomBlue transition hover:bg-telecomBlue/20">
+                    <LayoutDashboard size={16} /> Dashboard
+                  </Link>
+                )}
+                <div className="flex items-center gap-2">
+                  <User size={16} className="text-slate-400" />
+                  <span className="text-sm text-slate-600">{profile?.full_name || user.email}</span>
+                </div>
+                <button onClick={handleSignOut} className="flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-red-500">
+                  <LogOut size={16} /> Sign Out
+                </button>
+              </>
+            ) : (
+              <Link to="/login" className="flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-telecomBlue">
+                <LogIn size={16} /> Login
+              </Link>
+            )}
             <a href={`tel:${COMPANY.phone}`} className="btn-primary text-sm">
               <Phone size={16} />
               {COMPANY.phone}
@@ -125,6 +153,22 @@ export default function Header() {
                 {item.label}
               </a>
               )
+            )}
+            {user ? (
+              <>
+                {isAdmin && (
+                  <Link to="/admin" onClick={() => setOpen(false)} className="flex items-center gap-1.5 text-sm font-medium text-telecomBlue">
+                    <LayoutDashboard size={16} /> Dashboard
+                  </Link>
+                )}
+                <button onClick={() => { handleSignOut(); setOpen(false); }} className="flex items-center gap-1.5 text-sm font-medium text-red-500">
+                  <LogOut size={16} /> Sign Out
+                </button>
+              </>
+            ) : (
+              <Link to="/login" onClick={() => setOpen(false)} className="flex items-center gap-1.5 text-sm font-medium text-telecomBlue">
+                <LogIn size={16} /> Login
+              </Link>
             )}
             <a href={`tel:${COMPANY.phone}`} className="btn-primary text-sm">
               <Phone size={16} />

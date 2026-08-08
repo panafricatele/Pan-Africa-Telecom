@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Minus, Plus, ShoppingCart } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { CheckCircle, Minus, Plus, ShoppingCart } from 'lucide-react';
 import { phonesApi } from '../lib/api';
+import { supabase } from '../lib/supabase';
 import { Phone } from '../types';
 import { useCart } from '../cart/CartContext';
 import Header from '../components/Header';
@@ -125,6 +127,21 @@ export default function Shop() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selected, setSelected] = useState<Phone | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { items: cartItems, clearCart } = useCart();
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('payment') === 'success') {
+      // Decrement stock in Supabase for each purchased item
+      for (const item of cartItems) {
+        supabase.rpc('decrement_stock', { product_id: item.phone.id, qty: item.quantity }).then(() => {});
+      }
+      clearCart();
+      setPaymentSuccess(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, []);
 
   useEffect(() => {
     phonesApi
@@ -143,6 +160,15 @@ export default function Shop() {
       <main className="flex-1">
         <section className="bg-slate-50 py-16">
           <div className="mx-auto max-w-7xl px-6">
+            {paymentSuccess && (
+              <div className="mb-8 flex items-center gap-3 rounded-xl border border-fibreEmerald/30 bg-fibreEmerald/10 p-4">
+                <CheckCircle className="shrink-0 text-fibreEmerald" size={22} />
+                <div>
+                  <p className="font-semibold text-fibreEmerald">Payment successful!</p>
+                  <p className="text-sm text-slate-600">Thank you for your order. We'll be in touch shortly.</p>
+                </div>
+              </div>
+            )}
             <div className="mb-8 text-center">
               <h1 className="text-4xl font-bold md:text-5xl">The Shop</h1>
               <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">

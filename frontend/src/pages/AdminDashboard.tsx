@@ -1,7 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Package, Smartphone, Plus, Pencil, Trash2, Save, X, Loader2,
+  LayoutDashboard, Package, Smartphone, Plus, Pencil, Trash2, Save, X, Loader2, Upload,
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -459,7 +459,27 @@ function ProductForm({ initial, onSave, onCancel }: {
   const [specsText, setSpecsText] = useState(
     Object.entries(initial.specs).map(([k, v]) => `${k}: ${v}`).join('\n')
   );
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isNew = !initial.id;
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop() || 'webp';
+      const path = `products/${Date.now()}-${slugify(prod.name || 'product')}.${ext}`;
+      const { error } = await supabase.storage.from('product-images').upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('product-images').getPublicUrl(path);
+      setProd({ ...prod, image: publicUrl });
+    } catch (err: any) {
+      alert('Upload failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -510,8 +530,21 @@ function ProductForm({ initial, onSave, onCancel }: {
           <input type="number" required min={0} value={prod.stock} onChange={(e) => setProd({ ...prod, stock: +e.target.value })} className="input-field" />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-600">Image URL</label>
-          <input value={prod.image} onChange={(e) => setProd({ ...prod, image: e.target.value })} className="input-field" placeholder="/images/phones/black.webp" />
+          <label className="mb-1 block text-xs font-medium text-slate-600">Image</label>
+          <div className="flex gap-2">
+            <input value={prod.image} onChange={(e) => setProd({ ...prod, image: e.target.value })} className="input-field flex-1" placeholder="URL or upload" />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="btn-secondary flex items-center gap-1 text-xs whitespace-nowrap"
+            >
+              {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+              {uploading ? 'Uploading…' : 'Upload'}
+            </button>
+          </div>
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+          {prod.image && <img src={prod.image} alt="Preview" className="mt-2 h-16 w-16 rounded border object-contain bg-white" />}
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-slate-600">Color</label>

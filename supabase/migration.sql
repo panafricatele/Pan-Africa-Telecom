@@ -158,3 +158,19 @@ create trigger packages_updated_at
 create trigger products_updated_at
   before update on public.products
   for each row execute function public.set_updated_at();
+
+-- ============================================================
+-- RPC: Decrement stock after successful purchase
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.decrement_stock(product_id text, qty integer)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  UPDATE public.products
+  SET stock = GREATEST(stock - qty, 0)
+  WHERE id = product_id;
+END;
+$$;

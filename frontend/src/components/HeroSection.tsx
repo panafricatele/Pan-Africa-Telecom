@@ -1,21 +1,16 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Activity, MapPin, Search, Wifi, Zap } from 'lucide-react';
+import { MapPin, Search, Wifi } from 'lucide-react';
 import { coverageApi } from '../lib/api';
 import { CoverageResponse, Package } from '../types';
-import { useUptime } from '../hooks/useUptime';
 import { COMPANY } from '../lib/constants';
-import { formatCurrency, pad } from '../lib/utils';
-
-const NETWORK_START = new Date('2023-02-01T00:00:00+02:00');
+import { formatCurrency } from '../lib/utils';
 
 export default function HeroSection() {
   const [query, setQuery] = useState('');
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState<CoverageResponse | null>(null);
-
-  const uptime = useUptime(NETWORK_START);
 
   const handleCheck = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,24 +168,6 @@ export default function HeroSection() {
               </motion.div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="glass-card p-5">
-                <div className="flex items-center gap-2 text-fibreEmerald">
-                  <Activity size={18} />
-                  <span className="text-sm font-semibold">Network uptime</span>
-                </div>
-                <p className="mt-2 text-xs text-slate-500">Live core network timer since go-live</p>
-                <div className="mt-3 font-mono text-2xl font-bold tracking-tight">
-                  {pad(uptime.days)}d {pad(uptime.hours)}h {pad(uptime.minutes)}m {pad(uptime.seconds)}s
-                </div>
-              </div>
-
-              <div className="glass-card p-5">
-                <Zap className="text-fibreEmerald" size={18} />
-                <div className="mt-2 text-3xl font-bold">24/7</div>
-                <p className="text-xs text-slate-500">Local NOC &amp; support</p>
-              </div>
-            </div>
           </motion.div>
         </div>
       </div>

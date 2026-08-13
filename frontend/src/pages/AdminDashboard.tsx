@@ -1,12 +1,13 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Package, Smartphone, Plus, Pencil, Trash2, Save, X, Loader2, Upload,
+  LayoutDashboard, Package, Smartphone, Plus, Pencil, Trash2, Save, X, Loader2, Upload, MapPin,
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { supabase } from '../lib/supabase';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { CoveragePanel } from './CoveragePanel';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -74,7 +75,7 @@ function slugify(text: string) {
 /*  Main component                                                     */
 /* ------------------------------------------------------------------ */
 
-type Tab = 'packages' | 'products';
+type Tab = 'packages' | 'products' | 'coverage';
 
 export default function AdminDashboard() {
   const { isAdmin, loading: authLoading } = useAuth();
@@ -126,9 +127,19 @@ export default function AdminDashboard() {
           >
             <Smartphone size={16} /> Products
           </button>
+          <button
+            onClick={() => setTab('coverage')}
+            className={`flex items-center gap-2 border-b-2 px-4 py-2 text-sm font-medium transition ${
+              tab === 'coverage'
+                ? 'border-telecomBlue text-telecomBlue'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <MapPin size={16} /> Coverage Areas
+          </button>
         </div>
 
-        {tab === 'packages' ? <PackagesPanel /> : <ProductsPanel />}
+        {tab === 'packages' ? <PackagesPanel /> : tab === 'products' ? <ProductsPanel /> : <CoveragePanel />}
       </main>
       <Footer />
     </div>

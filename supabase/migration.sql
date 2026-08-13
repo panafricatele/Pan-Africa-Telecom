@@ -160,6 +160,26 @@ create trigger products_updated_at
   for each row execute function public.set_updated_at();
 
 -- ============================================================
+-- Coverage Areas table (admin-managed)
+-- ============================================================
+
+create table if not exists public.coverage_areas (
+  id uuid primary key default gen_random_uuid(),
+  city text not null,
+  area text not null,
+  technologies text[] not null default '{}',
+  package_ids text[] not null default '{}',
+  is_active boolean not null default true,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now(),
+  unique(city, area)
+);
+
+create trigger coverage_areas_updated_at
+  before update on public.coverage_areas
+  for each row execute function public.set_updated_at();
+
+-- ============================================================
 -- RPC: Decrement stock after successful purchase
 -- ============================================================
 

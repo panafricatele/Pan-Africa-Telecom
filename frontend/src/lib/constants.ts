@@ -7,7 +7,12 @@ export const COMPANY = {
   email: 'info@PanAfricaTelecom.co.za',
   portalUrl: 'https://portal.panafricatelecom.co.za',
   icasaLicense: 'ICASA License No: 2411/CECNS/CECN/FEB/2023 | AS: 328583',
-  wapaCoC: 'https://www.panafricatelecom.co.za/wp-content/uploads/2023/05/WAPA_CodeofConduct_Version4-1_140402.pdf',
+  policies: {
+    terms: 'https://www.panafricatelecom.co.za/wp-content/uploads/2023/07/General-Terms-Conditions_PAT_FIN-Published.pdf',
+    privacy: 'https://www.panafricatelecom.co.za/wp-content/uploads/2023/06/Pan-Africa-Telecom-Pty-Ltd-Privacy-Policy-June-20233-1.pdf',
+    wapaCoC: 'https://www.panafricatelecom.co.za/wp-content/uploads/2023/05/WAPA_CodeofConduct_Version4-1_140402.pdf',
+    codeOfConduct: 'https://www.panafricatelecom.co.za/wp-content/uploads/2026/05/PAN20004-20260226-pan-africa-code-of-conduct.pdf',
+  },
   social: {
     facebook: 'https://www.facebook.com/PanAfricaTelecom/',
     linkedin: 'https://za.linkedin.com/company/panafricatelecom',

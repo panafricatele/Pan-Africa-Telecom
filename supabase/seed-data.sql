@@ -25,22 +25,48 @@ VALUES
   ('sol-8kw', 'solar', '{solar}', '8 kW Commercial Solar', 'Reliable power for sites & enterprise', 149990, 'installed (from)', NULL, false, '{8 kVA three-phase inverter,Scalable battery storage,COC & warranty included,Optional monitoring}', '{5,10}')
 ON CONFLICT (id) DO NOTHING;
 
--- Coverage Areas (major KZN cities with all packages)
+-- Coverage Areas (major South African cities and provinces)
 INSERT INTO public.coverage_areas (city, area, technologies, package_ids, is_active)
 VALUES
-  ('Newcastle', 'Riverside Industrial', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
-  ('Newcastle', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  -- KwaZulu-Natal
   ('Durban', 'Central Business District', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
   ('Durban', 'Umhlanga', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
   ('Durban', 'Westville', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Durban', 'Berea', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
   ('Pietermaritzburg', 'Central', '{fibre,fixed-wireless,lte}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
   ('Pietermaritzburg', 'Northdale', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,lte-100,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw}', true),
+  ('Newcastle', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
   ('Pinetown', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
   ('Ballito', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
   ('Hillcrest', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
   ('Kloof', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
-  ('Umkomaas', 'Central', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,lte-100,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw}', true),
-  ('Ixopo', 'Central', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,voi-pbx,voi-sms,voi-trunk,sol-3kw}', true)
+  -- Gauteng
+  ('Johannesburg', 'Sandton', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Johannesburg', 'Midrand', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Johannesburg', 'Rosebank', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Johannesburg', 'Soweto', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,lte-100,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw}', true),
+  ('Pretoria', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Pretoria', 'Menlyn', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Centurion', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  -- Western Cape
+  ('Cape Town', 'Central Business District', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Cape Town', 'Sandton', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Cape Town', 'Camps Bay', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Stellenbosch', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Paarl', 'Central', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,lte-100,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw}', true),
+  -- Eastern Cape
+  ('Port Elizabeth', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('East London', 'Central', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,lte-100,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw}', true),
+  -- Limpopo
+  ('Polokwane', 'Central', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,lte-100,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw}', true),
+  -- Mpumalanga
+  ('Nelspruit', 'Central', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,lte-100,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw}', true),
+  -- North West
+  ('Rustenburg', 'Central', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,lte-100,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw}', true),
+  -- Free State
+  ('Bloemfontein', 'Central', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,lte-100,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw}', true),
+  -- Northern Cape
+  ('Kimberley', 'Central', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,lte-100,voi-pbx,voi-sms,voi-trunk,sol-3kw}', true)
 ON CONFLICT (city, area) DO NOTHING;
 
 -- Products (phones & equipment)

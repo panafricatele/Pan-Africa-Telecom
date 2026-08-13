@@ -33,37 +33,57 @@ export function CoveragePanel() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data: areasData } = await supabase
-      .from('coverage_areas')
-      .select('*')
-      .order('city')
-      .order('area');
-    const { data: pkgsData } = await supabase
-      .from('packages')
-      .select('*')
-      .order('name');
-    setAreas((areasData as CoverageArea[]) || []);
-    setPackages((pkgsData as PkgRow[]) || []);
-    setLoading(false);
+    try {
+      const { data: areasData, error: areasError } = await supabase
+        .from('coverage_areas')
+        .select('*')
+        .order('city')
+        .order('area');
+      const { data: pkgsData, error: pkgsError } = await supabase
+        .from('packages')
+        .select('*')
+        .order('name');
+      
+      if (areasError) console.error('Error loading areas:', areasError);
+      if (pkgsError) console.error('Error loading packages:', pkgsError);
+      
+      setAreas((areasData as CoverageArea[]) || []);
+      setPackages((pkgsData as PkgRow[]) || []);
+    } catch (err) {
+      console.error('Error in load:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
   const save = async (area: CoverageArea) => {
-    const isNew = !areas.find((a) => a.id === area.id);
-    if (isNew) {
-      await supabase.from('coverage_areas').insert(area);
-    } else {
-      await supabase.from('coverage_areas').update(area).eq('id', area.id);
+    try {
+      const isNew = !areas.find((a) => a.id === area.id);
+      if (isNew) {
+        const { error } = await supabase.from('coverage_areas').insert(area);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('coverage_areas').update(area).eq('id', area.id);
+        if (error) throw error;
+      }
+      setEditing(null);
+      await load();
+    } catch (err: any) {
+      alert('Error saving coverage area: ' + (err.message || 'Unknown error'));
     }
-    setEditing(null);
-    load();
   };
 
   const remove = async (id: string) => {
     if (!confirm('Delete this coverage area?')) return;
-    await supabase.from('coverage_areas').delete().eq('id', id);
-    load();
+    try {
+      const { error } = await supabase.from('coverage_areas').delete().eq('id', id);
+      if (error) throw error;
+      await load();
+    } catch (err: any) {
+      alert('Error deleting coverage area: ' + (err.message || 'Unknown error'));
+    }
   };
 
   return (

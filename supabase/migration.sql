@@ -15,17 +15,20 @@ create table if not exists public.profiles (
 alter table public.profiles enable row level security;
 
 -- Everyone can read their own profile
+drop policy if exists "Users can read own profile" on public.profiles;
 create policy "Users can read own profile"
   on public.profiles for select
   using (auth.uid() = id);
 
 -- Users can update their own profile (but not role)
+drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
   on public.profiles for update
   using (auth.uid() = id)
   with check (auth.uid() = id);
 
 -- Allow insert from trigger
+drop policy if exists "Service can insert profiles" on public.profiles;
 create policy "Service can insert profiles"
   on public.profiles for insert
   with check (auth.uid() = id);
@@ -61,6 +64,7 @@ create table if not exists public.cart_items (
 
 alter table public.cart_items enable row level security;
 
+drop policy if exists "Users manage own cart" on public.cart_items;
 create policy "Users manage own cart"
   on public.cart_items for all
   using (auth.uid() = user_id)
@@ -87,11 +91,13 @@ create table if not exists public.packages (
 alter table public.packages enable row level security;
 
 -- Anyone can read packages
+drop policy if exists "Public can read packages" on public.packages;
 create policy "Public can read packages"
   on public.packages for select
   using (true);
 
 -- Only admins can insert/update/delete
+drop policy if exists "Admins manage packages" on public.packages;
 create policy "Admins manage packages"
   on public.packages for all
   using (
@@ -125,11 +131,13 @@ create table if not exists public.products (
 alter table public.products enable row level security;
 
 -- Anyone can read products
+drop policy if exists "Public can read products" on public.products;
 create policy "Public can read products"
   on public.products for select
   using (true);
 
 -- Only admins can insert/update/delete
+drop policy if exists "Admins manage products" on public.products;
 create policy "Admins manage products"
   on public.products for all
   using (
@@ -151,10 +159,12 @@ begin
 end;
 $$;
 
+drop trigger if exists packages_updated_at on public.packages;
 create trigger packages_updated_at
   before update on public.packages
   for each row execute function public.set_updated_at();
 
+drop trigger if exists products_updated_at on public.products;
 create trigger products_updated_at
   before update on public.products
   for each row execute function public.set_updated_at();
@@ -175,6 +185,26 @@ create table if not exists public.coverage_areas (
   unique(city, area)
 );
 
+alter table public.coverage_areas enable row level security;
+
+-- Anyone can read coverage areas
+drop policy if exists "Public can read coverage areas" on public.coverage_areas;
+create policy "Public can read coverage areas"
+  on public.coverage_areas for select
+  using (true);
+
+-- Only admins can insert/update/delete
+drop policy if exists "Admins manage coverage areas" on public.coverage_areas;
+create policy "Admins manage coverage areas"
+  on public.coverage_areas for all
+  using (
+    exists (
+      select 1 from public.profiles
+      where id = auth.uid() and role = 'admin'
+    )
+  );
+
+drop trigger if exists coverage_areas_updated_at on public.coverage_areas;
 create trigger coverage_areas_updated_at
   before update on public.coverage_areas
   for each row execute function public.set_updated_at();

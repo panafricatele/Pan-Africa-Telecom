@@ -60,9 +60,11 @@ export function CoveragePanel() {
 
   const save = async (area: CoverageArea) => {
     try {
-      const isNew = !areas.find((a) => a.id === area.id);
+      const isNew = !area.id || area.id === '';
       if (isNew) {
-        const { error } = await supabase.from('coverage_areas').insert(area);
+        // Omit id field for new areas - let database generate UUID
+        const { id, ...areaWithoutId } = area;
+        const { error } = await supabase.from('coverage_areas').insert(areaWithoutId);
         if (error) throw error;
       } else {
         const { error } = await supabase.from('coverage_areas').update(area).eq('id', area.id);

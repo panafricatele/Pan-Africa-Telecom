@@ -14,7 +14,9 @@ export default function Home() {
       <main className="flex-1">
         <HeroSection />
         <NetworkMap />
-        <ServiceExplorer />
+        <section id="packages">
+          <ServiceExplorer />
+        </section>
         <SpeedTestWidget />
         <ContactAndSupport />
       </main>

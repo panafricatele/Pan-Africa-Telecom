@@ -1,26 +1,36 @@
 import { Injectable } from '@nestjs/common';
+import { createClient } from '@supabase/supabase-js';
 import { CoverageAdapter } from './adapters/coverage-adapter.interface';
 import { InternalCoverageAdapter } from './adapters/internal-coverage.adapter';
 import { TelkomOpenserveAdapter } from './adapters/telkom-openserve.adapter';
 import { EvotelAdapter } from './adapters/evotel.adapter';
+import { SupabaseCoverageAdapter } from './adapters/supabase-coverage.adapter';
 import { ProductRepository } from '../database/repositories/product.repository';
 import { CoverageResult, CoverageTechnology, ProviderResult } from './coverage.types';
 
 @Injectable()
 export class CoverageAggregatorService {
   private readonly adapters: CoverageAdapter[];
+  private supabase;
 
   constructor(
+    private readonly supabaseAdapter: SupabaseCoverageAdapter,
     private readonly internalAdapter: InternalCoverageAdapter,
     private readonly telkomAdapter: TelkomOpenserveAdapter,
     private readonly evotelAdapter: EvotelAdapter,
     private readonly productRepository: ProductRepository,
   ) {
     this.adapters = [
+      this.supabaseAdapter,
       this.internalAdapter,
       this.telkomAdapter,
       this.evotelAdapter,
     ];
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_ANON_KEY;
+    if (url && key) {
+      this.supabase = createClient(url, key);
+    }
   }
 
   async check(location: string): Promise<CoverageResult> {
@@ -46,7 +56,31 @@ export class CoverageAggregatorService {
       new Set(availableSources.map((source) => source.type as CoverageTechnology)),
     );
 
-    const packages = this.productRepository.findByTechnologies(technologies);
+    let packages = this.productRepository.findByTechnologies(technologies);
+
+    // If Supabase coverage found, use the specific packages from coverage_areas table
+    const supabaseSource = sources.find((s) => s.source === 'supabase' && s.available);
+    if (supabaseSource && this.supabase) {
+      try {
+        const { data } = await this.supabase
+          .from('coverage_areas')
+          .select('package_ids')
+          .ilike('city', `%${location}%`)
+          .or(`area.ilike.%${location}%`)
+          .eq('is_active', true)
+          .limit(1)
+          .single();
+
+        if (data?.package_ids && data.package_ids.length > 0) {
+          packages = this.productRepository
+            .findAll()
+            .filter((p) => data.package_ids.includes(p.id));
+        }
+      } catch (err) {
+        // Fallback to technology-based packages
+      }
+    }
+
     const recommended = packages.length ? packages[0] : undefined;
 
     const estimatedSpeed = availableSources.length

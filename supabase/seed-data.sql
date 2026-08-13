@@ -25,6 +25,24 @@ VALUES
   ('sol-8kw', 'solar', '{solar}', '8 kW Commercial Solar', 'Reliable power for sites & enterprise', 149990, 'installed (from)', NULL, false, '{8 kVA three-phase inverter,Scalable battery storage,COC & warranty included,Optional monitoring}', '{5,10}')
 ON CONFLICT (id) DO NOTHING;
 
+-- Coverage Areas (major KZN cities with all packages)
+INSERT INTO public.coverage_areas (city, area, technologies, package_ids, is_active)
+VALUES
+  ('Newcastle', 'Riverside Industrial', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Newcastle', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Durban', 'Central Business District', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Durban', 'Umhlanga', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Durban', 'Westville', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Pietermaritzburg', 'Central', '{fibre,fixed-wireless,lte}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Pietermaritzburg', 'Northdale', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,lte-100,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw}', true),
+  ('Pinetown', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Ballito', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Hillcrest', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Kloof', 'Central', '{fibre,fixed-wireless}', '{int-10,int-25,int-50,int-100,int-200,lte-25,lte-50,lte-100,glo-mpls,glo-sdwan,glo-iepl,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw,sol-8kw}', true),
+  ('Umkomaas', 'Central', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,lte-100,voi-pbx,voi-sms,voi-trunk,sol-3kw,sol-5kw}', true),
+  ('Ixopo', 'Central', '{fixed-wireless,lte}', '{int-10,int-25,lte-25,lte-50,voi-pbx,voi-sms,voi-trunk,sol-3kw}', true)
+ON CONFLICT (city, area) DO NOTHING;
+
 -- Products (phones & equipment)
 INSERT INTO public.products (id, slug, category, name, brand, model, color, color_code, price, compare_at_price, stock, image, description, specs)
 VALUES

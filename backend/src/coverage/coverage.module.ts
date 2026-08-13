@@ -5,6 +5,7 @@ import { CoverageAggregatorService } from './coverage-aggregator.service';
 import { InternalCoverageAdapter } from './adapters/internal-coverage.adapter';
 import { TelkomOpenserveAdapter } from './adapters/telkom-openserve.adapter';
 import { EvotelAdapter } from './adapters/evotel.adapter';
+import { SupabaseCoverageAdapter } from './adapters/supabase-coverage.adapter';
 import { DatabaseModule } from '../database/database.module';
 
 @Module({
@@ -13,6 +14,7 @@ import { DatabaseModule } from '../database/database.module';
   providers: [
     CoverageService,
     CoverageAggregatorService,
+    SupabaseCoverageAdapter,
     InternalCoverageAdapter,
     TelkomOpenserveAdapter,
     EvotelAdapter,

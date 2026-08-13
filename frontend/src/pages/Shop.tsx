@@ -122,11 +122,18 @@ function ProductGrid({ products, onSelect }: { products: Phone[]; onSelect: (pho
   );
 }
 
+const CATEGORIES: { id: string; label: string }[] = [
+  { id: 'all', label: 'All' },
+  { id: 'phone', label: 'Phones' },
+  { id: 'equipment', label: 'GPON / Network Equipment' },
+];
+
 export default function Shop() {
   const [phones, setPhones] = useState<Phone[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selected, setSelected] = useState<Phone | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchParams, setSearchParams] = useSearchParams();
   const { items: cartItems, clearCart } = useCart();
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -151,8 +158,10 @@ export default function Shop() {
       .finally(() => setLoading(false));
   }, []);
 
-  const phoneProducts = phones.filter((p) => (p.category ?? 'phone') === 'phone');
-  const equipmentProducts = phones.filter((p) => p.category === 'equipment');
+  const filteredProducts =
+    selectedCategory === 'all'
+      ? phones
+      : phones.filter((p) => (p.category ?? 'phone') === selectedCategory);
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
@@ -176,24 +185,34 @@ export default function Shop() {
               </p>
             </div>
 
+            {!loading && !error && (
+              <div className="mb-8 flex flex-wrap items-center justify-center gap-2">
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                      selectedCategory === cat.id
+                        ? 'bg-telecomBlue text-white'
+                        : 'bg-white text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {loading ? (
               <div className="py-12 text-center text-slate-500">Loading products…</div>
             ) : error ? (
               <div className="rounded-xl bg-red-50 p-6 text-center text-red-700">{error}</div>
             ) : (
               <>
-                {phoneProducts.length > 0 && (
-                  <div className="mb-16">
-                    <h2 className="mb-6 text-2xl font-bold">Rugged Smartphones</h2>
-                    <ProductGrid products={phoneProducts} onSelect={setSelected} />
-                  </div>
-                )}
-
-                {equipmentProducts.length > 0 && (
-                  <div>
-                    <h2 className="mb-6 text-2xl font-bold">Network Equipment (GPON)</h2>
-                    <ProductGrid products={equipmentProducts} onSelect={setSelected} />
-                  </div>
+                {filteredProducts.length > 0 ? (
+                  <ProductGrid products={filteredProducts} onSelect={setSelected} />
+                ) : (
+                  <p className="py-12 text-center text-slate-500">No products found in this category.</p>
                 )}
               </>
             )}

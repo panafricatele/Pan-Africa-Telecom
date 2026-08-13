@@ -184,7 +184,20 @@ export default function ServiceExplorer() {
                     )}
                   </div>
 
-                  <p className="mt-1 text-sm text-slate-500">{pkg.tagline}</p>
+                  {pkg.technologies.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {pkg.technologies.map((tech) => (
+                        <span
+                          key={tech}
+                          className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600"
+                        >
+                          {tech === 'fixed-wireless' ? 'Fixed Wireless' : tech}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <p className="mt-2 text-sm text-slate-500">{pkg.tagline}</p>
                   {pkg.speed && (
                     <div className="mt-4 text-3xl font-bold text-telecomBlue">{pkg.speed}</div>
                   )}

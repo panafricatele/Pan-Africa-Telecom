@@ -47,19 +47,28 @@ export default function ServiceExplorer() {
     [active, packages],
   );
 
+  const value = slider[active];
+
+  const filteredPackages = useMemo(() => {
+    if (!categoryPackages.length) return [];
+    const matches = categoryPackages.filter(
+      (p) => value >= p.demandRange[0] && value <= p.demandRange[1],
+    );
+    return matches.length > 0 ? matches : categoryPackages;
+  }, [value, categoryPackages]);
+
   const recommended = useMemo(() => {
-    if (!categoryPackages.length) return undefined;
-    const value = slider[active];
-    const match = categoryPackages.find(
+    if (!filteredPackages.length) return undefined;
+    const match = filteredPackages.find(
       (p) => value >= p.demandRange[0] && value <= p.demandRange[1],
     );
     if (match) return match;
-    return categoryPackages.reduce((best, p) => {
+    return filteredPackages.reduce((best, p) => {
       const bestMid = (best.demandRange[0] + best.demandRange[1]) / 2;
       const pMid = (p.demandRange[0] + p.demandRange[1]) / 2;
       return Math.abs(pMid - value) < Math.abs(bestMid - value) ? p : best;
-    }, categoryPackages[0]);
-  }, [active, slider, categoryPackages]);
+    }, filteredPackages[0]);
+  }, [value, filteredPackages]);
 
   const openSignup = (pkg: Package) => {
     setSelected(pkg);
@@ -155,7 +164,7 @@ export default function ServiceExplorer() {
 
         <motion.div layout className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence mode="popLayout">
-            {categoryPackages.map((pkg) => {
+            {filteredPackages.map((pkg) => {
               const isRecommended = pkg.id === recommended?.id;
               return (
                 <motion.div

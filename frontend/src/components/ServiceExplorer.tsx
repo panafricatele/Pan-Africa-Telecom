@@ -15,6 +15,12 @@ const TABS: { id: ServiceCategory; label: string; unit: string; min: number; max
 
 const initialSliders = Object.fromEntries(TABS.map((t) => [t.id, t.initial])) as Record<ServiceCategory, number>;
 
+function parseSpeedMbps(speed?: string): number | null {
+  if (!speed) return null;
+  const match = speed.match(/(\d+)\s*Mbps/i);
+  return match ? Number(match[1]) : null;
+}
+
 export default function ServiceExplorer() {
   const [active, setActive] = useState<ServiceCategory>('internet');
   const [slider, setSlider] = useState<Record<ServiceCategory, number>>(initialSliders);
@@ -51,10 +57,13 @@ export default function ServiceExplorer() {
 
   const filteredPackages = useMemo(() => {
     if (!categoryPackages.length) return [];
-    const matches = categoryPackages.filter(
-      (p) => value >= p.demandRange[0] && value <= p.demandRange[1],
-    );
-    return matches.length > 0 ? matches : categoryPackages;
+    const speedMatches = categoryPackages.filter((p) => {
+      const packageSpeed = parseSpeedMbps(p.speed);
+      if (packageSpeed == null) return true;
+      return packageSpeed >= value;
+    });
+    if (speedMatches.length > 0) return speedMatches;
+    return categoryPackages;
   }, [value, categoryPackages]);
 
   const recommended = useMemo(() => {

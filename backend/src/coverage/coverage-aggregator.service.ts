@@ -62,19 +62,21 @@ export class CoverageAggregatorService {
     const supabaseSource = sources.find((s) => s.source === 'supabase' && s.available);
     if (supabaseSource && this.supabase) {
       try {
-        const { data } = await this.supabase
+        const { data, error } = await this.supabase
           .from('coverage_areas')
           .select('package_ids')
           .ilike('city', `%${location}%`)
           .or(`area.ilike.%${location}%`)
           .eq('is_active', true)
-          .limit(1)
-          .single();
+          .limit(1);
 
-        if (data?.package_ids && data.package_ids.length > 0) {
-          packages = this.productRepository
-            .findAll()
-            .filter((p) => data.package_ids.includes(p.id));
+        if (!error && data && data.length > 0) {
+          const area = data[0];
+          if (area.package_ids && area.package_ids.length > 0) {
+            packages = this.productRepository
+              .findAll()
+              .filter((p) => area.package_ids.includes(p.id));
+          }
         }
       } catch (err) {
         // Fallback to technology-based packages

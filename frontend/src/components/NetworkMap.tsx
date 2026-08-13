@@ -56,7 +56,7 @@ export default function NetworkMap() {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Enter your street address, suburb or town"
+                placeholder="Search for city or area (e.g. Durban, Johannesburg)"
                 className="input-field pl-10"
               />
             </div>

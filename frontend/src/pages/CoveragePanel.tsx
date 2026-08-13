@@ -205,11 +205,11 @@ function CoverageForm({ initial, packages, onSave, onCancel }: CoverageFormProps
       <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-xs font-medium text-slate-600">City *</label>
-          <input value={area.city} onChange={(e) => setArea({ ...area, city: e.target.value })} className="input-field" placeholder="e.g. Newcastle" />
+          <input value={area.city} onChange={(e) => setArea({ ...area, city: e.target.value })} className="input-field" placeholder="e.g. Durban, Johannesburg" />
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-slate-600">Area *</label>
-          <input value={area.area} onChange={(e) => setArea({ ...area, area: e.target.value })} className="input-field" placeholder="e.g. Riverside Industrial" />
+          <input value={area.area} onChange={(e) => setArea({ ...area, area: e.target.value })} className="input-field" placeholder="e.g. Central, Sandton" />
         </div>
         <div className="sm:col-span-2">
           <label className="mb-2 block text-xs font-medium text-slate-600">Technologies</label>

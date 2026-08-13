@@ -179,11 +179,16 @@ create table if not exists public.coverage_areas (
   area text not null,
   technologies text[] not null default '{}',
   package_ids text[] not null default '{}',
+  providers text[] not null default '{pan-africa}',
   is_active boolean not null default true,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
   unique(city, area)
 );
+
+-- Add providers column if the table already exists without it
+alter table public.coverage_areas
+  add column if not exists providers text[] not null default '{pan-africa}';
 
 alter table public.coverage_areas enable row level security;
 

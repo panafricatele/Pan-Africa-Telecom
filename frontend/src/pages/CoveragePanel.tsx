@@ -22,6 +22,7 @@ interface CoverageArea {
   area: string;
   technologies: string[];
   package_ids: string[];
+  providers: string[];
   is_active: boolean;
 }
 
@@ -91,7 +92,7 @@ export function CoveragePanel() {
   return (
     <>
       <div className="mb-4">
-        <button onClick={() => setEditing({ id: '', city: '', area: '', technologies: [], package_ids: [], is_active: true })} className="btn-primary text-sm">
+        <button onClick={() => setEditing({ id: '', city: '', area: '', technologies: [], package_ids: [], providers: ['pan-africa'], is_active: true })} className="btn-primary text-sm">
           <Plus size={16} /> Add Coverage Area
         </button>
       </div>
@@ -117,6 +118,7 @@ export function CoveragePanel() {
                 <th className="px-4 py-3">City</th>
                 <th className="px-4 py-3">Area</th>
                 <th className="px-4 py-3">Technologies</th>
+                <th className="px-4 py-3">Providers</th>
                 <th className="px-4 py-3">Packages</th>
                 <th className="px-4 py-3">Active</th>
                 <th className="px-4 py-3 text-right">Actions</th>
@@ -136,6 +138,7 @@ export function CoveragePanel() {
                       ))}
                     </div>
                   </td>
+                  <td className="px-4 py-3 text-xs">{(a.providers || ['pan-africa']).join(', ')}</td>
                   <td className="px-4 py-3 text-xs">{a.package_ids.length} package(s)</td>
                   <td className="px-4 py-3">{a.is_active ? '✓' : '✗'}</td>
                   <td className="flex justify-end gap-2 px-4 py-3">
@@ -199,6 +202,15 @@ function CoverageForm({ initial, packages, onSave, onCancel }: CoverageFormProps
     });
   };
 
+  const toggleProvider = (provider: string) => {
+    setArea({
+      ...area,
+      providers: (area.providers || []).includes(provider)
+        ? (area.providers || []).filter((p) => p !== provider)
+        : [...(area.providers || []), provider],
+    });
+  };
+
   return (
     <div className="mb-6 rounded-xl border border-slate-200 bg-white p-6">
       <h3 className="mb-4 text-lg font-bold">{isNew ? 'Add Coverage Area' : 'Edit Coverage Area'}</h3>
@@ -227,6 +239,26 @@ function CoverageForm({ initial, packages, onSave, onCancel }: CoverageFormProps
               >
                 {tech === 'fixed-wireless' ? 'Fixed Wireless' : tech.charAt(0).toUpperCase() + tech.slice(1)}
               </button>
+            ))}
+          </div>
+        </div>
+        <div className="sm:col-span-2">
+          <label className="mb-2 block text-xs font-medium text-slate-600">Providers Available</label>
+          <div className="flex flex-wrap gap-4">
+            {[
+              { id: 'pan-africa', label: 'Pan Africa Telecom' },
+              { id: 'telkom', label: 'Telkom / Openserve' },
+              { id: 'evotel', label: 'Evotel Fibre' },
+            ].map((provider) => (
+              <label key={provider.id} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={(area.providers || []).includes(provider.id)}
+                  onChange={() => toggleProvider(provider.id)}
+                  className="rounded border-slate-300"
+                />
+                <span>{provider.label}</span>
+              </label>
             ))}
           </div>
         </div>

@@ -68,10 +68,16 @@ async function seedCoverageAreas() {
       console.warn('⚠️  Could not clear existing data:', deleteError.message);
     }
 
+    // Add default providers to all areas before insert
+    const areasWithProviders = coverageAreas.map((area) => ({
+      ...area,
+      providers: area.providers || ['pan-africa'],
+    }));
+
     // Insert new data
     const { data, error } = await supabase
       .from('coverage_areas')
-      .insert(coverageAreas);
+      .insert(areasWithProviders);
 
     if (error) {
       console.error('❌ Error seeding coverage areas:', error);

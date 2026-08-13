@@ -44,7 +44,7 @@ interface ProductRow {
   specs: Record<string, string>;
 }
 
-const PACKAGE_CATEGORIES = ['internet', 'lte', 'global', 'voice', 'solar'] as const;
+const PACKAGE_CATEGORIES = ['internet', 'fibre', 'lte', 'global', 'voice', 'solar'] as const;
 const PRODUCT_CATEGORIES = ['phone', 'equipment'] as const;
 
 /* ------------------------------------------------------------------ */

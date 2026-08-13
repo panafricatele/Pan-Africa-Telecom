@@ -1,4 +1,4 @@
-export type ServiceCategory = 'internet' | 'lte' | 'global' | 'voice' | 'solar';
+export type ServiceCategory = 'internet' | 'fibre' | 'lte' | 'global' | 'voice' | 'solar';
 
 export type CoverageTechnology = 'fibre' | 'fixed-wireless' | 'lte';
 

@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, X, Wifi, Globe, Phone, Sun, ChevronRight, Loader2, type LucideIcon } from 'lucide-react';
+import { CheckCircle, X, Wifi, Signal, Globe, Phone, Sun, ChevronRight, Loader2, type LucideIcon } from 'lucide-react';
 import { Package, ServiceCategory, LeadRequest } from '../types';
 import { formatCurrency } from '../lib/utils';
 import { leadApi, servicesApi } from '../lib/api';
 
 const TABS: { id: ServiceCategory; label: string; unit: string; min: number; max: number; initial: number; icon: LucideIcon }[] = [
   { id: 'internet', label: 'Home & Business Internet', unit: 'Mbps', min: 5, max: 200, initial: 25, icon: Wifi },
+  { id: 'lte', label: 'LTE & Mobile Data', unit: 'Mbps', min: 2, max: 100, initial: 10, icon: Signal },
   { id: 'global', label: 'Global Connectivity', unit: 'branch sites', min: 1, max: 20, initial: 3, icon: Globe },
   { id: 'voice', label: 'VoIP & SMS', unit: 'users / channels', min: 2, max: 100, initial: 10, icon: Phone },
   { id: 'solar', label: 'Renewable Solar Energy', unit: 'kW load', min: 1, max: 10, initial: 3, icon: Sun },

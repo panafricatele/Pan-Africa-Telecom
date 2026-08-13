@@ -5,14 +5,12 @@ import { ProviderResult, CoverageTechnology } from '../coverage.types';
 
 @Injectable()
 export class SupabaseCoverageAdapter implements CoverageAdapter {
+  readonly source = 'supabase';
   private supabase;
 
   constructor() {
-    const url = process.env.SUPABASE_URL;
-    const key = process.env.SUPABASE_ANON_KEY;
-    if (!url || !key) {
-      throw new Error('SUPABASE_URL and SUPABASE_ANON_KEY env vars required');
-    }
+    const url = process.env.SUPABASE_URL || 'https://nydtwlzhaqpnzcvaijkk.supabase.co';
+    const key = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55ZHR3bHpoYXFwbnpjdmFpamtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMTY0OTQsImV4cCI6MjEwMTY5MjQ5NH0.GmB0SzsC-kjGi5_rJDs_Ax3IwVjjbkiXD10HwPLSmgU';
     this.supabase = createClient(url, key);
   }
 

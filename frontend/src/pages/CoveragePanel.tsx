@@ -167,6 +167,11 @@ function CoverageForm({ initial, packages, onSave, onCancel }: CoverageFormProps
   const [area, setArea] = useState(initial);
   const isNew = !initial.id;
 
+  // Sync state when initial changes (e.g., when editing different area)
+  useEffect(() => {
+    setArea(initial);
+  }, [initial.id]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!area.city.trim() || !area.area.trim()) {

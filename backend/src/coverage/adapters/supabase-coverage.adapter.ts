@@ -24,10 +24,10 @@ export class SupabaseCoverageAdapter implements CoverageAdapter {
         .ilike('city', `%${location}%`)
         .or(`area.ilike.%${location}%`)
         .eq('is_active', true)
-        .limit(1)
-        .single();
+        .limit(1);
 
-      if (error || !data) {
+      if (error) {
+        console.error('Supabase error:', error);
         return {
           source: 'supabase',
           providerName: 'Pan Africa Telecom',
@@ -36,7 +36,17 @@ export class SupabaseCoverageAdapter implements CoverageAdapter {
         };
       }
 
-      const technologies = (data.technologies || []) as CoverageTechnology[];
+      if (!data || data.length === 0) {
+        return {
+          source: 'supabase',
+          providerName: 'Pan Africa Telecom',
+          available: false,
+          message: `No coverage found for "${location}". Please check the address or contact us for a feasibility study.`,
+        };
+      }
+
+      const area = data[0];
+      const technologies = (area.technologies || []) as CoverageTechnology[];
       const estimatedSpeed = this.getEstimatedSpeed(technologies);
 
       return {
@@ -45,9 +55,10 @@ export class SupabaseCoverageAdapter implements CoverageAdapter {
         available: true,
         type: technologies[0] || 'fibre',
         estimatedSpeed,
-        message: `Pan Africa Telecom coverage available in ${data.city} - ${data.area} via ${technologies.join(', ')}.`,
+        message: `Pan Africa Telecom coverage available in ${area.city} - ${area.area} via ${technologies.join(', ')}.`,
       };
-    } catch (err) {
+    } catch (err: any) {
+      console.error('Coverage check error:', err);
       return {
         source: 'supabase',
         providerName: 'Pan Africa Telecom',

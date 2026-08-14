@@ -3,22 +3,15 @@ import { Activity, ExternalLink, MapPin, RefreshCw, Server } from 'lucide-react'
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import WhatsAppFloat from '../components/WhatsAppFloat';
-import { supabase } from '../lib/supabase';
+import { networkStatusApi } from '../lib/api';
 
-interface Monitor {
-  id: string;
+interface NetworkStatusResult {
   provider: 'evotel' | 'vumatel';
   area: string;
+  status: string;
   latitude: number | null;
   longitude: number | null;
-  status: string;
-  is_active: boolean;
-}
-
-interface EvotelComponent {
-  id: string;
-  name: string;
-  status: string;
+  updatedAt: string;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -38,8 +31,7 @@ function formatStatus(status: string): string {
 }
 
 export default function NetworkStatus() {
-  const [monitors, setMonitors] = useState<Monitor[]>([]);
-  const [evotelComponents, setEvotelComponents] = useState<EvotelComponent[]>([]);
+  const [results, setResults] = useState<NetworkStatusResult[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -49,30 +41,8 @@ export default function NetworkStatus() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [monitorsResult, evotelResponse] = await Promise.all([
-        supabase
-          .from('network_status_monitors')
-          .select('*')
-          .eq('is_active', true)
-          .order('provider')
-          .order('area'),
-        fetch('https://status.evotel.co.za/v3/components.json'),
-      ]);
-
-      if (monitorsResult.error) {
-        console.error('Error loading monitors:', monitorsResult.error);
-      } else {
-        setMonitors((monitorsResult.data as Monitor[]) || []);
-      }
-
-      const evotelJson = await evotelResponse.json();
-      setEvotelComponents(
-        (evotelJson.components || []).map((c: any) => ({
-          id: c.id,
-          name: c.name,
-          status: c.status,
-        }))
-      );
+      const data = await networkStatusApi.list();
+      setResults(data as NetworkStatusResult[]);
     } catch (err) {
       console.error('Error loading network status:', err);
     } finally {
@@ -80,15 +50,8 @@ export default function NetworkStatus() {
     }
   };
 
-  const evotelStatusFor = (area: string): string => {
-    const match = evotelComponents.find(
-      (c) => c.name.trim().toLowerCase() === area.trim().toLowerCase()
-    );
-    return match ? match.status : 'OPERATIONAL';
-  };
-
-  const evotelMonitors = monitors.filter((m) => m.provider === 'evotel');
-  const vumatelMonitors = monitors.filter((m) => m.provider === 'vumatel');
+  const evotelResults = results.filter((r) => r.provider === 'evotel');
+  const vumatelResults = results.filter((r) => r.provider === 'vumatel');
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
@@ -167,28 +130,25 @@ export default function NetworkStatus() {
                     <Server className="text-telecomBlue" size={20} />
                     <h3 className="text-lg font-bold">Evotel</h3>
                   </div>
-                  {evotelMonitors.length === 0 ? (
+                  {evotelResults.length === 0 ? (
                     <p className="py-4 text-center text-sm text-slate-500">No Evotel areas monitored yet.</p>
                   ) : (
                     <ul className="space-y-3">
-                      {evotelMonitors.map((m) => {
-                        const liveStatus = evotelStatusFor(m.area);
-                        return (
-                          <li key={m.id} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
-                            <div className="flex items-center gap-2">
-                              <MapPin size={14} className="text-slate-400" />
-                              <span className="font-medium">{m.area}</span>
-                            </div>
-                            <span
-                              className={`rounded-full px-3 py-1 text-xs font-medium ${
-                                STATUS_COLORS[liveStatus] || 'bg-slate-100 text-slate-600'
-                              }`}
-                            >
-                              {formatStatus(liveStatus)}
-                            </span>
-                          </li>
-                        );
-                      })}
+                      {evotelResults.map((r) => (
+                        <li key={`${r.provider}-${r.area}`} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
+                          <div className="flex items-center gap-2">
+                            <MapPin size={14} className="text-slate-400" />
+                            <span className="font-medium">{r.area}</span>
+                          </div>
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-medium ${
+                              STATUS_COLORS[r.status] || 'bg-slate-100 text-slate-600'
+                            }`}
+                          >
+                            {formatStatus(r.status)}
+                          </span>
+                        </li>
+                      ))}
                     </ul>
                   )}
                 </div>
@@ -198,27 +158,27 @@ export default function NetworkStatus() {
                     <Server className="text-telecomBlue" size={20} />
                     <h3 className="text-lg font-bold">Vumatel</h3>
                   </div>
-                  {vumatelMonitors.length === 0 ? (
+                  {vumatelResults.length === 0 ? (
                     <p className="py-4 text-center text-sm text-slate-500">No Vumatel locations monitored yet.</p>
                   ) : (
                     <ul className="space-y-3">
-                      {vumatelMonitors.map((m) => (
-                        <li key={m.id} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
+                      {vumatelResults.map((r) => (
+                        <li key={`${r.provider}-${r.area}`} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                           <div>
                             <div className="flex items-center gap-2">
                               <MapPin size={14} className="text-slate-400" />
-                              <span className="font-medium">{m.area}</span>
+                              <span className="font-medium">{r.area}</span>
                             </div>
-                            {m.latitude && m.longitude && (
-                              <p className="text-xs text-slate-500">{m.latitude}, {m.longitude}</p>
+                            {r.latitude && r.longitude && (
+                              <p className="text-xs text-slate-500">{r.latitude}, {r.longitude}</p>
                             )}
                           </div>
                           <span
                             className={`rounded-full px-3 py-1 text-xs font-medium ${
-                              STATUS_COLORS[m.status] || 'bg-slate-100 text-slate-600'
+                              STATUS_COLORS[r.status] || 'bg-slate-100 text-slate-600'
                             }`}
                           >
-                            {formatStatus(m.status)}
+                            {formatStatus(r.status)}
                           </span>
                         </li>
                       ))}

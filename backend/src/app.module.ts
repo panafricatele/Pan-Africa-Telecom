@@ -6,8 +6,9 @@ import { TicketsModule } from './tickets/tickets.module';
 import { PhonesModule } from './phones/phones.module';
 import { CheckoutModule } from './checkout/checkout.module';
 import { DatabaseModule } from './database/database.module';
+import { NetworkStatusModule } from './network-status/network-status.module';
 
 @Module({
-  imports: [DatabaseModule, CoverageModule, ServicesModule, LeadModule, TicketsModule, PhonesModule, CheckoutModule],
+  imports: [DatabaseModule, CoverageModule, ServicesModule, LeadModule, TicketsModule, PhonesModule, CheckoutModule, NetworkStatusModule],
 })
 export class AppModule {}

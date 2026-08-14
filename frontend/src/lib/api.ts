@@ -30,6 +30,11 @@ export const coverageApi = {
     post<CoverageResponse>(`${API_BASE}/coverage/check`, { location }),
 };
 
+export const networkStatusApi = {
+  list: () => get(`${API_BASE}/network-status`),
+  evotelComponents: () => get(`${API_BASE}/network-status/evotel-components`),
+};
+
 export const servicesApi = {
   list: async (category?: ServiceCategory, technology?: string): Promise<Package[]> => {
     try {

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Activity, Plus, Trash2, RefreshCw, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { networkStatusApi } from '../lib/api';
 
 interface NetworkMonitor {
   id: string;
@@ -65,14 +66,8 @@ export function NetworkStatusPanel() {
 
   const loadEvotelComponents = useCallback(async () => {
     try {
-      const response = await fetch('https://status.evotel.co.za/v3/components.json');
-      const json = await response.json();
-      const components = (json.components || []).map((c: any) => ({
-        id: c.id,
-        name: c.name,
-        status: c.status,
-      }));
-      setEvotelComponents(components);
+      const components = await networkStatusApi.evotelComponents();
+      setEvotelComponents(components as EvotelComponent[]);
     } catch (err) {
       console.error('Error loading Evotel components:', err);
     }

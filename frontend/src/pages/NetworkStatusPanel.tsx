@@ -85,24 +85,35 @@ export function NetworkStatusPanel() {
     );
   };
 
-  const evotelStatusFor = (area: string): string => {
+  const evotelStatusFor = (area: string, storedStatus: string = 'OPERATIONAL'): string => {
+    if (evotelComponents.length === 0) return storedStatus;
     const match = evotelComponentFor(area);
-    return match ? match.status : 'NOT_FOUND';
+    return match ? match.status : 'OPERATIONAL';
   };
 
   const addEvotel = async () => {
     const area = newEvotel.trim();
     if (!area) return;
+
     const match = evotelComponentFor(area);
-    if (!match) {
+
+    if (evotelComponents.length > 0 && !match) {
       alert(`'${area}' is not a valid Evotel area. Please choose from the published Evotel components.`);
       return;
     }
+
+    if (evotelComponents.length === 0) {
+      const proceed = window.confirm(
+        `Could not load the Evotel component list. Add '${area}' without validation?`
+      );
+      if (!proceed) return;
+    }
+
     try {
       const { error } = await supabase.from('network_status_monitors').insert({
         provider: 'evotel',
-        area: match.name,
-        status: match.status,
+        area: match ? match.name : area,
+        status: match ? match.status : 'OPERATIONAL',
         is_active: true,
       });
       if (error) throw error;
@@ -120,7 +131,7 @@ export function NetworkStatusPanel() {
       alert('Please enter both latitude and longitude for this Vumatel location.');
       return;
     }
-    if (evotelComponentFor(area)) {
+    if (evotelComponents.length > 0 && evotelComponentFor(area)) {
       alert(`'${area}' appears to be an Evotel area. Please add it under Evotel instead.`);
       return;
     }
@@ -175,7 +186,7 @@ export function NetworkStatusPanel() {
     try {
       const evotelMonitors = monitors.filter((m) => m.provider === 'evotel');
       for (const monitor of evotelMonitors) {
-        const status = evotelStatusFor(monitor.area);
+        const status = evotelStatusFor(monitor.area, monitor.status);
         if (status !== monitor.status) {
           await supabase
             .from('network_status_monitors')

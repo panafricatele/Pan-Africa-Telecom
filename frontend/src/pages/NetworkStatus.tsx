@@ -101,7 +101,7 @@ export default function NetworkStatus() {
         const match = evotelComponents.find(
           (c) => c.name.trim().toLowerCase() === area.trim().toLowerCase()
         );
-        return match ? match.status : 'NOT_FOUND';
+        return match ? match.status : 'OPERATIONAL';
       };
 
       const mapped = (monitors as NetworkMonitor[]).map((m) => ({

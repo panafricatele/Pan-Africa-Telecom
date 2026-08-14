@@ -81,7 +81,7 @@ export class NetworkStatusService {
         return {
           provider: monitor.provider,
           area: monitor.area,
-          status: match ? match.status : 'NOT_FOUND',
+          status: match ? match.status : 'OPERATIONAL',
           latitude: monitor.latitude,
           longitude: monitor.longitude,
           updatedAt: new Date().toISOString(),

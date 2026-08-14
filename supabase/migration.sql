@@ -229,3 +229,43 @@ BEGIN
   WHERE id = product_id;
 END;
 $$;
+
+-- ============================================================
+-- Network Status Monitors (admin-managed live status checks)
+-- ============================================================
+
+create table if not exists public.network_status_monitors (
+  id uuid primary key default gen_random_uuid(),
+  provider text not null check (provider in ('evotel', 'vumatel')),
+  area text not null,
+  latitude numeric(10, 8),
+  longitude numeric(11, 8),
+  external_id text,
+  status text not null default 'OPERATIONAL',
+  is_active boolean not null default true,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now(),
+  unique(provider, area)
+);
+
+alter table public.network_status_monitors enable row level security;
+
+drop policy if exists "Public can read network status monitors" on public.network_status_monitors;
+create policy "Public can read network status monitors"
+  on public.network_status_monitors for select
+  using (true);
+
+drop policy if exists "Admins manage network status monitors" on public.network_status_monitors;
+create policy "Admins manage network status monitors"
+  on public.network_status_monitors for all
+  using (
+    exists (
+      select 1 from public.profiles
+      where id = auth.uid() and role = 'admin'
+    )
+  );
+
+drop trigger if exists network_status_monitors_updated_at on public.network_status_monitors;
+create trigger network_status_monitors_updated_at
+  before update on public.network_status_monitors
+  for each row execute function public.set_updated_at();

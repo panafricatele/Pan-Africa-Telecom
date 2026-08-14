@@ -236,17 +236,29 @@ $$;
 
 create table if not exists public.network_status_monitors (
   id uuid primary key default gen_random_uuid(),
-  provider text not null check (provider in ('evotel', 'vumatel')),
+  provider text not null check (provider in ('evotel', 'vumatel', 'wireless')),
   area text not null,
   latitude numeric(10, 8),
   longitude numeric(11, 8),
   external_id text,
   status text not null default 'OPERATIONAL',
+  note text,
   is_active boolean not null default true,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
   unique(provider, area)
 );
+
+-- Idempotent upgrades for databases created before the 'wireless' provider existed
+alter table public.network_status_monitors
+  add column if not exists note text;
+
+alter table public.network_status_monitors
+  drop constraint if exists network_status_monitors_provider_check;
+
+alter table public.network_status_monitors
+  add constraint network_status_monitors_provider_check
+  check (provider in ('evotel', 'vumatel', 'wireless'));
 
 alter table public.network_status_monitors enable row level security;
 

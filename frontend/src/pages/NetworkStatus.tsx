@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Activity, ExternalLink, MapPin, RefreshCw, Server, AlertTriangle } from 'lucide-react';
+import {
+  Activity,
+  ExternalLink,
+  MapPin,
+  RefreshCw,
+  Server,
+  AlertTriangle,
+  Radio,
+} from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import WhatsAppFloat from '../components/WhatsAppFloat';
@@ -11,20 +19,24 @@ import {
   findEvotelComponent,
 } from '../lib/evotel';
 
+type NetworkProvider = 'evotel' | 'vumatel' | 'wireless';
+
 interface NetworkMonitor {
   id: string;
-  provider: 'evotel' | 'vumatel';
+  provider: NetworkProvider;
   area: string;
   latitude: number | null;
   longitude: number | null;
   status: string;
+  note: string | null;
   is_active: boolean;
 }
 
 interface NetworkStatusResult {
-  provider: 'evotel' | 'vumatel';
+  provider: NetworkProvider;
   area: string;
   status: string;
+  note?: string | null;
   latitude: number | null;
   longitude: number | null;
 }
@@ -35,6 +47,7 @@ const STATUS_COLORS: Record<string, string> = {
   MAJOROUTAGE: 'bg-red-100 text-red-700',
   INVESTIGATING: 'bg-amber-100 text-amber-700',
   DEGRADED: 'bg-amber-100 text-amber-700',
+  MAINTENANCE: 'bg-sky-100 text-sky-700',
   NOT_FOUND: 'bg-slate-100 text-slate-600',
 };
 
@@ -95,6 +108,7 @@ export default function NetworkStatus() {
         provider: m.provider,
         area: m.area,
         status: m.provider === 'evotel' ? evotelStatusFor(m.area, m.status) : m.status,
+        note: m.note,
         latitude: m.latitude,
         longitude: m.longitude,
       }));
@@ -110,6 +124,7 @@ export default function NetworkStatus() {
 
   const evotelResults = results.filter((r) => r.provider === 'evotel');
   const vumatelResults = results.filter((r) => r.provider === 'vumatel');
+  const wirelessResults = results.filter((r) => r.provider === 'wireless');
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
@@ -189,7 +204,7 @@ export default function NetworkStatus() {
             {loading ? (
               <div className="py-12 text-center text-slate-500">Loading network status…</div>
             ) : (
-              <div className="grid gap-6 lg:grid-cols-2">
+              <div className="grid gap-6 lg:grid-cols-3">
                 <div className="rounded-2xl border border-slate-200 bg-white p-6">
                   <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
                     <Server className="text-telecomBlue" size={20} />
@@ -235,6 +250,44 @@ export default function NetworkStatus() {
                           </div>
                           <span
                             className={`rounded-full px-3 py-1 text-xs font-medium ${
+                              STATUS_COLORS[r.status] || 'bg-slate-100 text-slate-600'
+                            }`}
+                          >
+                            {formatStatus(r.status)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-6">
+                  <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Radio className="text-telecomBlue" size={20} />
+                    <h3 className="text-lg font-bold">Fixed Wireless</h3>
+                  </div>
+                  {wirelessResults.length === 0 ? (
+                    <p className="py-4 text-center text-sm text-slate-500">
+                      No wireless sites monitored yet.
+                    </p>
+                  ) : (
+                    <ul className="space-y-3">
+                      {wirelessResults.map((r) => (
+                        <li
+                          key={`wireless-${r.area}`}
+                          className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 p-3"
+                        >
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <MapPin size={14} className="shrink-0 text-slate-400" />
+                              <span className="font-medium">{r.area}</span>
+                            </div>
+                            {r.note && (
+                              <p className="mt-1 pl-6 text-xs text-slate-500">{r.note}</p>
+                            )}
+                          </div>
+                          <span
+                            className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
                               STATUS_COLORS[r.status] || 'bg-slate-100 text-slate-600'
                             }`}
                           >

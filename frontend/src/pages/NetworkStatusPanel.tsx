@@ -1,19 +1,30 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Activity, Plus, Trash2, RefreshCw, Loader2 } from 'lucide-react';
+import { Activity, Plus, Trash2, RefreshCw, Loader2, Radio } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { networkStatusApi } from '../lib/api';
 import { EvotelComponent, findEvotelComponent } from '../lib/evotel';
 
+type NetworkProvider = 'evotel' | 'vumatel' | 'wireless';
+
 interface NetworkMonitor {
   id: string;
-  provider: 'evotel' | 'vumatel';
+  provider: NetworkProvider;
   area: string;
   latitude: number | null;
   longitude: number | null;
   external_id: string | null;
   status: string;
+  note: string | null;
   is_active: boolean;
 }
+
+const WIRELESS_STATUS_OPTIONS = [
+  { value: 'OPERATIONAL', label: 'Operational' },
+  { value: 'DEGRADED', label: 'Degraded performance' },
+  { value: 'PARTIALOUTAGE', label: 'Partial outage' },
+  { value: 'MAJOROUTAGE', label: 'Major outage' },
+  { value: 'MAINTENANCE', label: 'Under maintenance' },
+];
 
 const STATUS_COLORS: Record<string, string> = {
   OPERATIONAL: 'bg-emerald-100 text-emerald-700',
@@ -21,6 +32,7 @@ const STATUS_COLORS: Record<string, string> = {
   MAJOROUTAGE: 'bg-red-100 text-red-700',
   INVESTIGATING: 'bg-amber-100 text-amber-700',
   DEGRADED: 'bg-amber-100 text-amber-700',
+  MAINTENANCE: 'bg-sky-100 text-sky-700',
   NOT_FOUND: 'bg-slate-100 text-slate-600',
 };
 
@@ -40,6 +52,11 @@ export function NetworkStatusPanel() {
   const [testing, setTesting] = useState<string | null>(null);
   const [newEvotel, setNewEvotel] = useState('');
   const [newVumatel, setNewVumatel] = useState({ area: '', latitude: '', longitude: '' });
+  const [newWireless, setNewWireless] = useState({
+    area: '',
+    status: 'OPERATIONAL',
+    note: '',
+  });
 
   const loadMonitors = useCallback(async () => {
     setLoading(true);
@@ -145,6 +162,52 @@ export function NetworkStatusPanel() {
     }
   };
 
+  const addWireless = async () => {
+    const area = newWireless.area.trim();
+    if (!area) {
+      alert('Please enter a wireless site or area name.');
+      return;
+    }
+    if (
+      monitors.some(
+        (m) => m.provider === 'wireless' && m.area.trim().toLowerCase() === area.toLowerCase()
+      )
+    ) {
+      alert(`'${area}' is already being monitored as a wireless area.`);
+      return;
+    }
+    try {
+      const { error } = await supabase.from('network_status_monitors').insert({
+        provider: 'wireless',
+        area,
+        status: newWireless.status,
+        note: newWireless.note.trim() || null,
+        is_active: true,
+      });
+      if (error) throw error;
+      setNewWireless({ area: '', status: 'OPERATIONAL', note: '' });
+      await loadMonitors();
+    } catch (err: any) {
+      alert('Error adding wireless area: ' + (err.message || 'Unknown error'));
+    }
+  };
+
+  const updateWirelessStatus = async (id: string, status: string) => {
+    setTesting(id);
+    try {
+      const { error } = await supabase
+        .from('network_status_monitors')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw error;
+      await loadMonitors();
+    } catch (err: any) {
+      alert('Error updating wireless status: ' + (err.message || 'Unknown error'));
+    } finally {
+      setTesting(null);
+    }
+  };
+
   const remove = async (id: string) => {
     if (!confirm('Remove this monitor?')) return;
     try {
@@ -195,6 +258,7 @@ export function NetworkStatusPanel() {
 
   const evotelMonitors = monitors.filter((m) => m.provider === 'evotel');
   const vumatelMonitors = monitors.filter((m) => m.provider === 'vumatel');
+  const wirelessMonitors = monitors.filter((m) => m.provider === 'wireless');
 
   return (
     <div>
@@ -202,7 +266,7 @@ export function NetworkStatusPanel() {
         <div>
           <h2 className="text-lg font-bold">Network Status Administration</h2>
           <p className="text-sm text-slate-500">
-            Manage the Evotel areas and Vumatel locations published on the customer-facing network status page.
+            Manage the Evotel areas, Vumatel locations and wireless sites published on the customer-facing network status page.
           </p>
         </div>
         <button
@@ -301,7 +365,7 @@ export function NetworkStatusPanel() {
           </div>
 
           {/* Vumatel */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6">
+          <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6">
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">Vumatel</h3>
@@ -386,6 +450,112 @@ export function NetworkStatusPanel() {
               ))}
               {vumatelMonitors.length === 0 && (
                 <p className="py-4 text-center text-sm text-slate-500">No Vumatel locations monitored yet.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Wireless */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500">
+                  <Radio size={14} /> Fixed Wireless
+                </h3>
+                <h4 className="text-xl font-bold">Monitored wireless sites</h4>
+                <p className="text-sm text-slate-500">
+                  Wireless sites are managed by PAT. Add any tower, suburb or coverage area and set its
+                  status manually.
+                </p>
+              </div>
+              <button onClick={addWireless} className="btn-primary text-sm">
+                <Plus size={16} /> Add site
+              </button>
+            </div>
+
+            <div className="mb-4 rounded-lg border border-slate-200 p-3">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600">
+                    Site / Area name
+                  </label>
+                  <input
+                    value={newWireless.area}
+                    onChange={(e) => setNewWireless({ ...newWireless, area: e.target.value })}
+                    placeholder="e.g. Newcastle Tower 3"
+                    className="input-field"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600">Status</label>
+                  <select
+                    value={newWireless.status}
+                    onChange={(e) => setNewWireless({ ...newWireless, status: e.target.value })}
+                    className="input-field"
+                  >
+                    {WIRELESS_STATUS_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600">
+                    Note (optional)
+                  </label>
+                  <input
+                    value={newWireless.note}
+                    onChange={(e) => setNewWireless({ ...newWireless, note: e.target.value })}
+                    placeholder="e.g. Scheduled upgrade until 18:00"
+                    className="input-field"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {wirelessMonitors.map((m) => (
+                <div
+                  key={m.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-100 bg-slate-50 p-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{m.area}</p>
+                    <p className="text-xs text-slate-500">{m.note || 'Fixed wireless site'}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-medium ${
+                        STATUS_COLORS[m.status] || 'bg-slate-100 text-slate-600'
+                      }`}
+                    >
+                      {formatStatus(m.status)}
+                    </span>
+                    <select
+                      value={m.status}
+                      onChange={(e) => updateWirelessStatus(m.id, e.target.value)}
+                      disabled={testing === m.id}
+                      className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm disabled:opacity-50"
+                    >
+                      {WIRELESS_STATUS_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => remove(m.id)}
+                      className="text-sm font-medium text-red-600 hover:underline"
+                    >
+                      <Trash2 size={14} /> Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {wirelessMonitors.length === 0 && (
+                <p className="py-4 text-center text-sm text-slate-500">
+                  No wireless sites monitored yet.
+                </p>
               )}
             </div>
           </div>

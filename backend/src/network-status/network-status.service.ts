@@ -1,15 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { EvotelComponent, NetworkStatusResult } from './network-status.types';
+import {
+  EvotelComponent,
+  NetworkProvider,
+  NetworkStatusResult,
+} from './network-status.types';
 
 interface NetworkStatusMonitor {
   id: string;
-  provider: 'evotel' | 'vumatel';
+  provider: NetworkProvider;
   area: string;
   latitude: number | null;
   longitude: number | null;
   external_id: string | null;
   status: string;
+  note: string | null;
   is_active: boolean;
 }
 
@@ -94,6 +99,7 @@ export class NetworkStatusService {
             provider: monitor.provider,
             area: monitor.area,
             status: monitor.status || 'OPERATIONAL',
+            note: monitor.note,
             latitude: monitor.latitude,
             longitude: monitor.longitude,
             updatedAt: new Date().toISOString(),
@@ -107,17 +113,19 @@ export class NetworkStatusService {
           provider: monitor.provider,
           area: monitor.area,
           status: match ? match.status : 'OPERATIONAL',
+          note: monitor.note,
           latitude: monitor.latitude,
           longitude: monitor.longitude,
           updatedAt: new Date().toISOString(),
         };
       }
 
-      // Vumatel: currently returns stored status as live API not available
+      // Vumatel and Wireless: admin-managed status, no live upstream API
       return {
         provider: monitor.provider,
         area: monitor.area,
         status: monitor.status || 'OPERATIONAL',
+        note: monitor.note,
         latitude: monitor.latitude,
         longitude: monitor.longitude,
         updatedAt: new Date().toISOString(),

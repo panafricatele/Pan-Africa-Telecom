@@ -11,10 +11,13 @@ export interface EvotelComponent {
   };
 }
 
+export type NetworkProvider = 'evotel' | 'vumatel' | 'wireless';
+
 export interface NetworkStatusResult {
-  provider: 'evotel' | 'vumatel';
+  provider: NetworkProvider;
   area: string;
   status: string;
+  note?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   updatedAt: string;

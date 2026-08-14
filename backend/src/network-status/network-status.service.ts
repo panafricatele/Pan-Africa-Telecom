@@ -23,18 +23,42 @@ export class NetworkStatusService {
     this.supabase = createClient(url, key);
   }
 
-  async getEvotelComponents(): Promise<EvotelComponent[]> {
-    try {
-      const response = await fetch('https://status.evotel.co.za/v3/components.json');
-      const json = await response.json();
-      return (json.components || []).map((c: any) => ({
+  private static readonly EVOTEL_COMPONENTS_URL =
+    'https://status.evotel.co.za/v3/components.json';
+
+  private static normalizeName(name: string): string {
+    return (name || '').trim().replace(/\s+/g, ' ').toLowerCase();
+  }
+
+  private static flattenComponents(raw: any[]): EvotelComponent[] {
+    const flat: EvotelComponent[] = [];
+    for (const c of raw) {
+      if (!c || !c.name) continue;
+      flat.push({
         id: c.id,
-        name: c.name,
+        name: (c.name as string).trim(),
         status: c.status,
         description: c.description || '',
         isParent: c.isParent || false,
         group: c.group,
-      }));
+      });
+      if (Array.isArray(c.children) && c.children.length > 0) {
+        flat.push(...NetworkStatusService.flattenComponents(c.children));
+      }
+    }
+    return flat;
+  }
+
+  async getEvotelComponents(): Promise<EvotelComponent[]> {
+    try {
+      const response = await fetch(NetworkStatusService.EVOTEL_COMPONENTS_URL);
+      if (!response.ok) {
+        throw new Error(`Evotel API responded with ${response.status}`);
+      }
+      const json = await response.json();
+      // The public API returns either a bare array or { components: [...] }
+      const raw = Array.isArray(json) ? json : json.components || [];
+      return NetworkStatusService.flattenComponents(raw);
     } catch (err) {
       console.error('Error fetching Evotel components:', err);
       return [];
@@ -75,8 +99,9 @@ export class NetworkStatusService {
             updatedAt: new Date().toISOString(),
           };
         }
+        const areaKey = NetworkStatusService.normalizeName(monitor.area);
         const match = evotelComponents.find(
-          (c) => c.name.trim().toLowerCase() === monitor.area.trim().toLowerCase()
+          (c) => NetworkStatusService.normalizeName(c.name) === areaKey
         );
         return {
           provider: monitor.provider,

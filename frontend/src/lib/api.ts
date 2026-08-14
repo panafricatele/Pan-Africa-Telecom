@@ -1,5 +1,10 @@
 import { CoverageResponse, LeadRequest, Package, ServiceCategory, TicketRequest, Phone, CheckoutRequest, PayFastPayment } from '../types';
 import { supabase } from './supabase';
+import {
+  EvotelComponent,
+  fetchEvotelComponentsDirect,
+  parseEvotelComponents,
+} from './evotel';
 
 const API_BASE = '/api/v1';
 
@@ -32,7 +37,16 @@ export const coverageApi = {
 
 export const networkStatusApi = {
   list: () => get(`${API_BASE}/network-status`),
-  evotelComponents: () => get(`${API_BASE}/network-status/evotel-components`),
+  evotelComponents: async (): Promise<EvotelComponent[]> => {
+    try {
+      const data = await get<unknown>(`${API_BASE}/network-status/evotel-components`);
+      const components = parseEvotelComponents(data);
+      if (components.length === 0) throw new Error('empty component list');
+      return components;
+    } catch {
+      return fetchEvotelComponentsDirect();
+    }
+  },
 };
 
 export const servicesApi = {

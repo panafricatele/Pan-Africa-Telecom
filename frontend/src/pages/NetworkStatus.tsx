@@ -5,6 +5,11 @@ import Footer from '../components/Footer';
 import WhatsAppFloat from '../components/WhatsAppFloat';
 import { supabase } from '../lib/supabase';
 import { networkStatusApi } from '../lib/api';
+import {
+  EvotelComponent,
+  fetchEvotelComponentsDirect,
+  findEvotelComponent,
+} from '../lib/evotel';
 
 interface NetworkMonitor {
   id: string;
@@ -14,12 +19,6 @@ interface NetworkMonitor {
   longitude: number | null;
   status: string;
   is_active: boolean;
-}
-
-interface EvotelComponent {
-  id: string;
-  name: string;
-  status: string;
 }
 
 interface NetworkStatusResult {
@@ -70,14 +69,14 @@ export default function NetworkStatus() {
 
     // Fallback: query Supabase directly and fetch Evotel live status
     try {
-      const [{ data: monitors }, evotelRes] = await Promise.all([
+      const [{ data: monitors }, evotelComponents] = await Promise.all([
         supabase
           .from('network_status_monitors')
           .select('*')
           .eq('is_active', true)
           .order('provider')
           .order('area'),
-        fetch('https://status.evotel.co.za/v3/components.json').catch(() => null),
+        fetchEvotelComponentsDirect().catch(() => [] as EvotelComponent[]),
       ]);
 
       if (!monitors) {
@@ -86,21 +85,9 @@ export default function NetworkStatus() {
         return;
       }
 
-      let evotelComponents: EvotelComponent[] = [];
-      if (evotelRes && evotelRes.ok) {
-        const json = await evotelRes.json();
-        evotelComponents = (json.components || []).map((c: any) => ({
-          id: c.id,
-          name: c.name,
-          status: c.status,
-        }));
-      }
-
       const evotelStatusFor = (area: string, storedStatus: string): string => {
         if (evotelComponents.length === 0) return storedStatus;
-        const match = evotelComponents.find(
-          (c) => c.name.trim().toLowerCase() === area.trim().toLowerCase()
-        );
+        const match = findEvotelComponent(evotelComponents, area);
         return match ? match.status : 'OPERATIONAL';
       };
 

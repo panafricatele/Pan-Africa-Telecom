@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Activity, Plus, Trash2, RefreshCw, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { networkStatusApi } from '../lib/api';
+import { EvotelComponent, findEvotelComponent } from '../lib/evotel';
 
 interface NetworkMonitor {
   id: string;
@@ -12,12 +13,6 @@ interface NetworkMonitor {
   external_id: string | null;
   status: string;
   is_active: boolean;
-}
-
-interface EvotelComponent {
-  id: string;
-  name: string;
-  status: string;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -68,9 +63,10 @@ export function NetworkStatusPanel() {
   const loadEvotelComponents = useCallback(async () => {
     try {
       const components = await networkStatusApi.evotelComponents();
-      setEvotelComponents(components as EvotelComponent[]);
+      setEvotelComponents(components);
     } catch (err) {
       console.error('Error loading Evotel components:', err);
+      setEvotelComponents([]);
     }
   }, []);
 
@@ -79,11 +75,8 @@ export function NetworkStatusPanel() {
     loadEvotelComponents();
   }, [loadMonitors, loadEvotelComponents]);
 
-  const evotelComponentFor = (area: string): EvotelComponent | undefined => {
-    return evotelComponents.find(
-      (c) => c.name.trim().toLowerCase() === area.trim().toLowerCase()
-    );
-  };
+  const evotelComponentFor = (area: string): EvotelComponent | undefined =>
+    findEvotelComponent(evotelComponents, area);
 
   const evotelStatusFor = (area: string, storedStatus: string = 'OPERATIONAL'): string => {
     if (evotelComponents.length === 0) return storedStatus;
@@ -251,12 +244,27 @@ export function NetworkStatusPanel() {
                   value={newEvotel}
                   onChange={(e) => setNewEvotel(e.target.value)}
                   placeholder="e.g. Newcastle"
+                  list="evotel-areas"
                   className="input-field flex-1"
                 />
+                <datalist id="evotel-areas">
+                  {evotelComponents.map((c) => (
+                    <option key={c.id} value={c.name} />
+                  ))}
+                </datalist>
                 <button onClick={addEvotel} className="btn-primary text-sm">
                   <Plus size={16} /> Add
                 </button>
               </div>
+              {evotelComponents.length === 0 ? (
+                <p className="mt-2 text-xs text-amber-600">
+                  Could not load the Evotel public API right now, so names cannot be validated.
+                </p>
+              ) : newEvotel.trim() && !evotelComponentFor(newEvotel) ? (
+                <p className="mt-2 text-xs text-red-600">
+                  Not an Evotel area. Pick one of the {evotelComponents.length} published areas.
+                </p>
+              ) : null}
             </div>
 
             <div className="space-y-2">

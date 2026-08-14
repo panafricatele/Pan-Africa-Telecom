@@ -15,7 +15,7 @@ export default function Footer() {
         <div className="flex flex-col items-center justify-between gap-8 md:flex-row md:items-start">
           <div className="text-sm text-slate-500">
             <Link to="/">
-              <img src="/images/logo.png" alt={COMPANY.name} className="mb-3 h-16 w-auto" />
+              <img src="/images/logo.png" alt={COMPANY.name} className="mb-3 h-24 w-auto" />
             </Link>
             <p className="font-semibold text-slate-900">{COMPANY.name}</p>
             <p>{COMPANY.address}</p>

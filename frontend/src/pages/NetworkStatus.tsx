@@ -1,9 +1,26 @@
 import { useEffect, useState } from 'react';
-import { Activity, ExternalLink, MapPin, RefreshCw, Server } from 'lucide-react';
+import { Activity, ExternalLink, MapPin, RefreshCw, Server, AlertTriangle } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import WhatsAppFloat from '../components/WhatsAppFloat';
+import { supabase } from '../lib/supabase';
 import { networkStatusApi } from '../lib/api';
+
+interface NetworkMonitor {
+  id: string;
+  provider: 'evotel' | 'vumatel';
+  area: string;
+  latitude: number | null;
+  longitude: number | null;
+  status: string;
+  is_active: boolean;
+}
+
+interface EvotelComponent {
+  id: string;
+  name: string;
+  status: string;
+}
 
 interface NetworkStatusResult {
   provider: 'evotel' | 'vumatel';
@@ -11,7 +28,6 @@ interface NetworkStatusResult {
   status: string;
   latitude: number | null;
   longitude: number | null;
-  updatedAt: string;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -32,6 +48,7 @@ function formatStatus(status: string): string {
 
 export default function NetworkStatus() {
   const [results, setResults] = useState<NetworkStatusResult[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,11 +57,63 @@ export default function NetworkStatus() {
 
   const loadData = async () => {
     setLoading(true);
+    setError(null);
     try {
+      // Try the backend API first (avoids CORS for Evotel)
       const data = await networkStatusApi.list();
-      setResults(data as NetworkStatusResult[]);
+      setResults((data as NetworkStatusResult[]) || []);
+      return;
+    } catch (err) {
+      console.warn('Backend network status API failed, falling back to direct fetch:', err);
+    }
+
+    // Fallback: query Supabase directly and fetch Evotel live status
+    try {
+      const [{ data: monitors }, evotelRes] = await Promise.all([
+        supabase
+          .from('network_status_monitors')
+          .select('*')
+          .eq('is_active', true)
+          .order('provider')
+          .order('area'),
+        fetch('https://status.evotel.co.za/v3/components.json').catch(() => null),
+      ]);
+
+      if (!monitors) {
+        setResults([]);
+        setError('Could not load monitored areas.');
+        return;
+      }
+
+      let evotelComponents: EvotelComponent[] = [];
+      if (evotelRes && evotelRes.ok) {
+        const json = await evotelRes.json();
+        evotelComponents = (json.components || []).map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          status: c.status,
+        }));
+      }
+
+      const evotelStatusFor = (area: string): string => {
+        const match = evotelComponents.find(
+          (c) => c.name.trim().toLowerCase() === area.trim().toLowerCase()
+        );
+        return match ? match.status : 'OPERATIONAL';
+      };
+
+      const mapped = (monitors as NetworkMonitor[]).map((m) => ({
+        provider: m.provider,
+        area: m.area,
+        status: m.provider === 'evotel' ? evotelStatusFor(m.area) : m.status,
+        latitude: m.latitude,
+        longitude: m.longitude,
+      }));
+
+      setResults(mapped);
     } catch (err) {
       console.error('Error loading network status:', err);
+      setError('Unable to load network status right now. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -121,6 +190,13 @@ export default function NetworkStatus() {
               </button>
             </div>
 
+            {error && (
+              <div className="mb-6 flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-red-700">
+                <AlertTriangle size={18} />
+                {error}
+              </div>
+            )}
+
             {loading ? (
               <div className="py-12 text-center text-slate-500">Loading network status…</div>
             ) : (
@@ -135,7 +211,7 @@ export default function NetworkStatus() {
                   ) : (
                     <ul className="space-y-3">
                       {evotelResults.map((r) => (
-                        <li key={`${r.provider}-${r.area}`} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
+                        <li key={`evotel-${r.area}`} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                           <div className="flex items-center gap-2">
                             <MapPin size={14} className="text-slate-400" />
                             <span className="font-medium">{r.area}</span>
@@ -163,7 +239,7 @@ export default function NetworkStatus() {
                   ) : (
                     <ul className="space-y-3">
                       {vumatelResults.map((r) => (
-                        <li key={`${r.provider}-${r.area}`} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
+                        <li key={`vumatel-${r.area}`} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                           <div>
                             <div className="flex items-center gap-2">
                               <MapPin size={14} className="text-slate-400" />

@@ -30,9 +30,12 @@ export default function HeroSection() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
-              <a href="#packages" className="btn-primary">
+              <button
+                onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })}
+                className="btn-primary"
+              >
                 <Wifi size={18} /> Explore packages
-              </a>
+              </button>
               <a href={COMPANY.portalUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary">
                 Customer Portal
               </a>

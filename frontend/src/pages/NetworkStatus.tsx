@@ -36,6 +36,7 @@ const STATUS_COLORS: Record<string, string> = {
   MAJOROUTAGE: 'bg-red-100 text-red-700',
   INVESTIGATING: 'bg-amber-100 text-amber-700',
   DEGRADED: 'bg-amber-100 text-amber-700',
+  NOT_FOUND: 'bg-slate-100 text-slate-600',
 };
 
 function formatStatus(status: string): string {
@@ -95,17 +96,18 @@ export default function NetworkStatus() {
         }));
       }
 
-      const evotelStatusFor = (area: string): string => {
+      const evotelStatusFor = (area: string, storedStatus: string): string => {
+        if (evotelComponents.length === 0) return storedStatus;
         const match = evotelComponents.find(
           (c) => c.name.trim().toLowerCase() === area.trim().toLowerCase()
         );
-        return match ? match.status : 'OPERATIONAL';
+        return match ? match.status : 'NOT_FOUND';
       };
 
       const mapped = (monitors as NetworkMonitor[]).map((m) => ({
         provider: m.provider,
         area: m.area,
-        status: m.provider === 'evotel' ? evotelStatusFor(m.area) : m.status,
+        status: m.provider === 'evotel' ? evotelStatusFor(m.area, m.status) : m.status,
         latitude: m.latitude,
         longitude: m.longitude,
       }));

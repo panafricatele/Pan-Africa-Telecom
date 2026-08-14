@@ -65,13 +65,23 @@ export class NetworkStatusService {
 
     return monitors.map((monitor) => {
       if (monitor.provider === 'evotel') {
+        if (evotelComponents.length === 0) {
+          return {
+            provider: monitor.provider,
+            area: monitor.area,
+            status: monitor.status || 'OPERATIONAL',
+            latitude: monitor.latitude,
+            longitude: monitor.longitude,
+            updatedAt: new Date().toISOString(),
+          };
+        }
         const match = evotelComponents.find(
           (c) => c.name.trim().toLowerCase() === monitor.area.trim().toLowerCase()
         );
         return {
           provider: monitor.provider,
           area: monitor.area,
-          status: match ? match.status : monitor.status || 'OPERATIONAL',
+          status: match ? match.status : 'NOT_FOUND',
           latitude: monitor.latitude,
           longitude: monitor.longitude,
           updatedAt: new Date().toISOString(),

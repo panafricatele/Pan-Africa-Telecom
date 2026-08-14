@@ -26,6 +26,7 @@ const STATUS_COLORS: Record<string, string> = {
   MAJOROUTAGE: 'bg-red-100 text-red-700',
   INVESTIGATING: 'bg-amber-100 text-amber-700',
   DEGRADED: 'bg-amber-100 text-amber-700',
+  NOT_FOUND: 'bg-slate-100 text-slate-600',
 };
 
 function formatStatus(status: string): string {
@@ -78,20 +79,30 @@ export function NetworkStatusPanel() {
     loadEvotelComponents();
   }, [loadMonitors, loadEvotelComponents]);
 
-  const evotelStatusFor = (area: string): string => {
-    const match = evotelComponents.find(
+  const evotelComponentFor = (area: string): EvotelComponent | undefined => {
+    return evotelComponents.find(
       (c) => c.name.trim().toLowerCase() === area.trim().toLowerCase()
     );
-    return match ? match.status : 'OPERATIONAL';
+  };
+
+  const evotelStatusFor = (area: string): string => {
+    const match = evotelComponentFor(area);
+    return match ? match.status : 'NOT_FOUND';
   };
 
   const addEvotel = async () => {
-    if (!newEvotel.trim()) return;
+    const area = newEvotel.trim();
+    if (!area) return;
+    const match = evotelComponentFor(area);
+    if (!match) {
+      alert(`'${area}' is not a valid Evotel area. Please choose from the published Evotel components.`);
+      return;
+    }
     try {
       const { error } = await supabase.from('network_status_monitors').insert({
         provider: 'evotel',
-        area: newEvotel.trim(),
-        status: evotelStatusFor(newEvotel.trim()),
+        area: match.name,
+        status: match.status,
         is_active: true,
       });
       if (error) throw error;
@@ -103,13 +114,22 @@ export function NetworkStatusPanel() {
   };
 
   const addVumatel = async () => {
-    if (!newVumatel.area.trim()) return;
+    const area = newVumatel.area.trim();
+    if (!area) return;
+    if (!newVumatel.latitude || !newVumatel.longitude) {
+      alert('Please enter both latitude and longitude for this Vumatel location.');
+      return;
+    }
+    if (evotelComponentFor(area)) {
+      alert(`'${area}' appears to be an Evotel area. Please add it under Evotel instead.`);
+      return;
+    }
     try {
       const { error } = await supabase.from('network_status_monitors').insert({
         provider: 'vumatel',
-        area: newVumatel.area.trim(),
-        latitude: newVumatel.latitude ? parseFloat(newVumatel.latitude) : null,
-        longitude: newVumatel.longitude ? parseFloat(newVumatel.longitude) : null,
+        area: area,
+        latitude: parseFloat(newVumatel.latitude),
+        longitude: parseFloat(newVumatel.longitude),
         status: 'OPERATIONAL',
         is_active: true,
       });

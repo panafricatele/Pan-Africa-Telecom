@@ -15,11 +15,15 @@ export default function Footer() {
         <div className="flex flex-col items-center justify-between gap-8 md:flex-row md:items-start">
           <div className="text-sm text-slate-500">
             <Link to="/">
-              <img src="/images/logo.png" alt={COMPANY.name} className="mb-3 h-8 w-auto" />
+              <img src="/images/logo.png" alt={COMPANY.name} className="mb-3 h-16 w-auto" />
             </Link>
             <p className="font-semibold text-slate-900">{COMPANY.name}</p>
             <p>{COMPANY.address}</p>
             <p className="mt-1">{COMPANY.icasaLicense}</p>
+            <div className="mt-4 flex items-center gap-3">
+              <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Proud Member</span>
+              <img src="/images/wapa-logo.jpg" alt="WAPA" className="h-10 w-auto" />
+            </div>
           </div>
 
           <div className="flex flex-col items-center gap-4 md:items-start">

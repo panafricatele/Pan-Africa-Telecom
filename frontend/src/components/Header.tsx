@@ -10,6 +10,7 @@ import CartDrawer from '../cart/CartDrawer';
 const nav = [
   { label: 'Home', to: '/' },
   { label: 'Shop', to: '/shop' },
+  { label: 'Network Status', to: '/network-status' },
   { label: 'Support', to: '/support' },
   { label: 'Sign Up', to: '/signup' },
   { label: 'Customer Portal', href: COMPANY.portalUrl, external: true },

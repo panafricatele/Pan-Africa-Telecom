@@ -1,79 +1,94 @@
 import { useEffect, useState } from 'react';
-import { Activity, ExternalLink, MapPin, RefreshCw, Wifi } from 'lucide-react';
+import { Activity, ExternalLink, MapPin, RefreshCw, Server } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import WhatsAppFloat from '../components/WhatsAppFloat';
 import { supabase } from '../lib/supabase';
 
-interface CoverageRow {
+interface Monitor {
   id: string;
-  city: string;
+  provider: 'evotel' | 'vumatel';
   area: string;
-  providers: string[];
+  latitude: number | null;
+  longitude: number | null;
+  status: string;
+  is_active: boolean;
 }
 
-const PROVIDER_STATUS_LINKS: Record<string, { label: string; url: string }> = {
-  evotel: {
-    label: 'Evotel Network Status',
-    url: 'https://status.evotel.co.za/',
-  },
-  telkom: {
-    label: 'Vumatel / Telkom Network Status',
-    url: 'https://vumatel.co.za/network-status',
-  },
+interface EvotelComponent {
+  id: string;
+  name: string;
+  status: string;
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  OPERATIONAL: 'bg-emerald-100 text-emerald-700',
+  PARTIALOUTAGE: 'bg-amber-100 text-amber-700',
+  MAJOROUTAGE: 'bg-red-100 text-red-700',
+  INVESTIGATING: 'bg-amber-100 text-amber-700',
+  DEGRADED: 'bg-amber-100 text-amber-700',
 };
 
-function ProviderLink({ provider }: { provider: string }) {
-  const status = PROVIDER_STATUS_LINKS[provider] || {
-    label: `${provider} Status`,
-    url: '#',
-  };
-
-  return (
-    <a
-      href={status.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 rounded-full bg-telecomBlue/10 px-3 py-1 text-xs font-medium text-telecomBlue hover:bg-telecomBlue/20"
-    >
-      {status.label} <ExternalLink size={12} />
-    </a>
-  );
+function formatStatus(status: string): string {
+  if (!status) return 'Unknown';
+  return status
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 export default function NetworkStatus() {
-  const [areas, setAreas] = useState<CoverageRow[]>([]);
+  const [monitors, setMonitors] = useState<Monitor[]>([]);
+  const [evotelComponents, setEvotelComponents] = useState<EvotelComponent[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadAreas();
+    loadData();
   }, []);
 
-  const loadAreas = async () => {
+  const loadData = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('coverage_areas')
-        .select('id, city, area, providers')
-        .eq('is_active', true)
-        .order('city')
-        .order('area');
+      const [monitorsResult, evotelResponse] = await Promise.all([
+        supabase
+          .from('network_status_monitors')
+          .select('*')
+          .eq('is_active', true)
+          .order('provider')
+          .order('area'),
+        fetch('https://status.evotel.co.za/v3/components.json'),
+      ]);
 
-      if (error) {
-        console.error('Error loading coverage areas:', error);
+      if (monitorsResult.error) {
+        console.error('Error loading monitors:', monitorsResult.error);
       } else {
-        setAreas((data as CoverageRow[]) || []);
+        setMonitors((monitorsResult.data as Monitor[]) || []);
       }
+
+      const evotelJson = await evotelResponse.json();
+      setEvotelComponents(
+        (evotelJson.components || []).map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          status: c.status,
+        }))
+      );
+    } catch (err) {
+      console.error('Error loading network status:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const grouped = areas.reduce<Record<string, CoverageRow[]>>((acc, area) => {
-    if (!acc[area.city]) acc[area.city] = [];
-    acc[area.city].push(area);
-    return acc;
-  }, {});
+  const evotelStatusFor = (area: string): string => {
+    const match = evotelComponents.find(
+      (c) => c.name.trim().toLowerCase() === area.trim().toLowerCase()
+    );
+    return match ? match.status : 'OPERATIONAL';
+  };
+
+  const evotelMonitors = monitors.filter((m) => m.provider === 'evotel');
+  const vumatelMonitors = monitors.filter((m) => m.provider === 'vumatel');
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
@@ -133,9 +148,9 @@ export default function NetworkStatus() {
             </div>
 
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Coverage Areas</h2>
+              <h2 className="text-2xl font-bold">Live Network Status</h2>
               <button
-                onClick={loadAreas}
+                onClick={loadData}
                 disabled={loading}
                 className="inline-flex items-center gap-2 text-sm font-medium text-telecomBlue hover:underline disabled:opacity-50"
               >
@@ -144,38 +159,72 @@ export default function NetworkStatus() {
             </div>
 
             {loading ? (
-              <div className="py-12 text-center text-slate-500">Loading coverage areas…</div>
-            ) : Object.keys(grouped).length === 0 ? (
-              <div className="py-12 text-center text-slate-500">No coverage areas found.</div>
+              <div className="py-12 text-center text-slate-500">Loading network status…</div>
             ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {Object.entries(grouped).map(([city, cityAreas]) => (
-                  <div key={city} className="rounded-2xl border border-slate-200 bg-white p-5">
-                    <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
-                      <MapPin className="text-telecomBlue" size={20} />
-                      <h3 className="text-lg font-bold">{city}</h3>
-                    </div>
+              <div className="grid gap-6 lg:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200 bg-white p-6">
+                  <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Server className="text-telecomBlue" size={20} />
+                    <h3 className="text-lg font-bold">Evotel</h3>
+                  </div>
+                  {evotelMonitors.length === 0 ? (
+                    <p className="py-4 text-center text-sm text-slate-500">No Evotel areas monitored yet.</p>
+                  ) : (
                     <ul className="space-y-3">
-                      {cityAreas.map((area) => (
-                        <li key={area.id} className="rounded-lg bg-slate-50 p-3">
-                          <div className="mb-2 flex items-start justify-between gap-2">
-                            <div>
-                              <p className="font-medium">{area.area}</p>
-                              <p className="text-xs text-slate-500 flex items-center gap-1">
-                                <Wifi size={12} /> Pan Africa Telecom
-                              </p>
+                      {evotelMonitors.map((m) => {
+                        const liveStatus = evotelStatusFor(m.area);
+                        return (
+                          <li key={m.id} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
+                            <div className="flex items-center gap-2">
+                              <MapPin size={14} className="text-slate-400" />
+                              <span className="font-medium">{m.area}</span>
                             </div>
+                            <span
+                              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                                STATUS_COLORS[liveStatus] || 'bg-slate-100 text-slate-600'
+                              }`}
+                            >
+                              {formatStatus(liveStatus)}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-6">
+                  <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Server className="text-telecomBlue" size={20} />
+                    <h3 className="text-lg font-bold">Vumatel</h3>
+                  </div>
+                  {vumatelMonitors.length === 0 ? (
+                    <p className="py-4 text-center text-sm text-slate-500">No Vumatel locations monitored yet.</p>
+                  ) : (
+                    <ul className="space-y-3">
+                      {vumatelMonitors.map((m) => (
+                        <li key={m.id} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <MapPin size={14} className="text-slate-400" />
+                              <span className="font-medium">{m.area}</span>
+                            </div>
+                            {m.latitude && m.longitude && (
+                              <p className="text-xs text-slate-500">{m.latitude}, {m.longitude}</p>
+                            )}
                           </div>
-                          <div className="flex flex-wrap gap-2">
-                            {(area.providers || ['pan-africa']).map((provider) => (
-                              <ProviderLink key={provider} provider={provider} />
-                            ))}
-                          </div>
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-medium ${
+                              STATUS_COLORS[m.status] || 'bg-slate-100 text-slate-600'
+                            }`}
+                          >
+                            {formatStatus(m.status)}
+                          </span>
                         </li>
                       ))}
                     </ul>
-                  </div>
-                ))}
+                  )}
+                </div>
               </div>
             )}
           </div>

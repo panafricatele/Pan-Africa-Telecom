@@ -1,0 +1,362 @@
+import { useEffect, useState, useCallback } from 'react';
+import { Activity, Plus, Trash2, RefreshCw, Loader2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+
+interface NetworkMonitor {
+  id: string;
+  provider: 'evotel' | 'vumatel';
+  area: string;
+  latitude: number | null;
+  longitude: number | null;
+  external_id: string | null;
+  status: string;
+  is_active: boolean;
+}
+
+interface EvotelComponent {
+  id: string;
+  name: string;
+  status: string;
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  OPERATIONAL: 'bg-emerald-100 text-emerald-700',
+  PARTIALOUTAGE: 'bg-amber-100 text-amber-700',
+  MAJOROUTAGE: 'bg-red-100 text-red-700',
+  INVESTIGATING: 'bg-amber-100 text-amber-700',
+  DEGRADED: 'bg-amber-100 text-amber-700',
+};
+
+function formatStatus(status: string): string {
+  if (!status) return 'Unknown';
+  return status
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
+export function NetworkStatusPanel() {
+  const [monitors, setMonitors] = useState<NetworkMonitor[]>([]);
+  const [evotelComponents, setEvotelComponents] = useState<EvotelComponent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState<string | null>(null);
+  const [newEvotel, setNewEvotel] = useState('');
+  const [newVumatel, setNewVumatel] = useState({ area: '', latitude: '', longitude: '' });
+
+  const loadMonitors = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('network_status_monitors')
+        .select('*')
+        .order('provider')
+        .order('area');
+
+      if (error) {
+        console.error('Error loading monitors:', error);
+      } else {
+        setMonitors((data as NetworkMonitor[]) || []);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadEvotelComponents = useCallback(async () => {
+    try {
+      const response = await fetch('https://status.evotel.co.za/v3/components.json');
+      const json = await response.json();
+      const components = (json.components || []).map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        status: c.status,
+      }));
+      setEvotelComponents(components);
+    } catch (err) {
+      console.error('Error loading Evotel components:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadMonitors();
+    loadEvotelComponents();
+  }, [loadMonitors, loadEvotelComponents]);
+
+  const evotelStatusFor = (area: string): string => {
+    const match = evotelComponents.find(
+      (c) => c.name.trim().toLowerCase() === area.trim().toLowerCase()
+    );
+    return match ? match.status : 'OPERATIONAL';
+  };
+
+  const addEvotel = async () => {
+    if (!newEvotel.trim()) return;
+    try {
+      const { error } = await supabase.from('network_status_monitors').insert({
+        provider: 'evotel',
+        area: newEvotel.trim(),
+        status: evotelStatusFor(newEvotel.trim()),
+        is_active: true,
+      });
+      if (error) throw error;
+      setNewEvotel('');
+      await loadMonitors();
+    } catch (err: any) {
+      alert('Error adding Evotel area: ' + (err.message || 'Unknown error'));
+    }
+  };
+
+  const addVumatel = async () => {
+    if (!newVumatel.area.trim()) return;
+    try {
+      const { error } = await supabase.from('network_status_monitors').insert({
+        provider: 'vumatel',
+        area: newVumatel.area.trim(),
+        latitude: newVumatel.latitude ? parseFloat(newVumatel.latitude) : null,
+        longitude: newVumatel.longitude ? parseFloat(newVumatel.longitude) : null,
+        status: 'OPERATIONAL',
+        is_active: true,
+      });
+      if (error) throw error;
+      setNewVumatel({ area: '', latitude: '', longitude: '' });
+      await loadMonitors();
+    } catch (err: any) {
+      alert('Error adding Vumatel location: ' + (err.message || 'Unknown error'));
+    }
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm('Remove this monitor?')) return;
+    try {
+      const { error } = await supabase.from('network_status_monitors').delete().eq('id', id);
+      if (error) throw error;
+      await loadMonitors();
+    } catch (err: any) {
+      alert('Error removing monitor: ' + (err.message || 'Unknown error'));
+    }
+  };
+
+  const testVumatel = async (id: string) => {
+    setTesting(id);
+    try {
+      // Placeholder: Vumatel API not yet available, mark as operational
+      const { error } = await supabase
+        .from('network_status_monitors')
+        .update({ status: 'OPERATIONAL', updated_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw error;
+      await loadMonitors();
+    } catch (err: any) {
+      alert('Error testing Vumatel: ' + (err.message || 'Unknown error'));
+    } finally {
+      setTesting(null);
+    }
+  };
+
+  const refreshAll = async () => {
+    await loadEvotelComponents();
+    setSaving(true);
+    try {
+      const evotelMonitors = monitors.filter((m) => m.provider === 'evotel');
+      for (const monitor of evotelMonitors) {
+        const status = evotelStatusFor(monitor.area);
+        if (status !== monitor.status) {
+          await supabase
+            .from('network_status_monitors')
+            .update({ status, updated_at: new Date().toISOString() })
+            .eq('id', monitor.id);
+        }
+      }
+      await loadMonitors();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const evotelMonitors = monitors.filter((m) => m.provider === 'evotel');
+  const vumatelMonitors = monitors.filter((m) => m.provider === 'vumatel');
+
+  return (
+    <div>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold">Network Status Administration</h2>
+          <p className="text-sm text-slate-500">
+            Manage the Evotel areas and Vumatel locations published on the customer-facing network status page.
+          </p>
+        </div>
+        <button
+          onClick={refreshAll}
+          disabled={saving || loading}
+          className="btn-primary text-sm"
+        >
+          {saving ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+          Refresh Status
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="py-12 text-center text-slate-500">
+          <Loader2 className="mx-auto mb-2 animate-spin" size={24} />
+          Loading monitors…
+        </div>
+      ) : (
+        <>
+          {/* Evotel */}
+          <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">Evotel</h3>
+                <h4 className="text-xl font-bold">Monitored areas</h4>
+                <p className="text-sm text-slate-500">
+                  Enter Evotel component/town names exactly as Evotel publishes them.
+                </p>
+              </div>
+              <button onClick={addEvotel} className="btn-primary text-sm">
+                <Plus size={16} /> Add area
+              </button>
+            </div>
+
+            <div className="mb-4 rounded-lg border border-slate-200 p-3">
+              <label className="mb-1 block text-xs font-medium text-slate-600">Area / Town</label>
+              <div className="flex gap-2">
+                <input
+                  value={newEvotel}
+                  onChange={(e) => setNewEvotel(e.target.value)}
+                  placeholder="e.g. Newcastle"
+                  className="input-field flex-1"
+                />
+                <button onClick={addEvotel} className="btn-primary text-sm">
+                  <Plus size={16} /> Add
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {evotelMonitors.map((m) => (
+                <div
+                  key={m.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-100 bg-slate-50 p-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{m.area}</p>
+                    <p className="text-xs text-slate-500">Evotel component</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-medium ${
+                        STATUS_COLORS[m.status] || 'bg-slate-100 text-slate-600'
+                      }`}
+                    >
+                      {formatStatus(m.status)}
+                    </span>
+                    <button
+                      onClick={() => remove(m.id)}
+                      className="text-sm font-medium text-red-600 hover:underline"
+                    >
+                      <Trash2 size={14} /> Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {evotelMonitors.length === 0 && (
+                <p className="py-4 text-center text-sm text-slate-500">No Evotel areas monitored yet.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Vumatel */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">Vumatel</h3>
+                <h4 className="text-xl font-bold">Monitored locations</h4>
+                <p className="text-sm text-slate-500">
+                  Vumatel is coordinate-specific. Use a representative Vumatel-serviced location for each area you want PAT to monitor.
+                </p>
+              </div>
+              <button onClick={addVumatel} className="btn-primary text-sm">
+                <Plus size={16} /> Add location
+              </button>
+            </div>
+
+            <div className="mb-4 rounded-lg border border-slate-200 p-3">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600">Area / Town</label>
+                  <input
+                    value={newVumatel.area}
+                    onChange={(e) => setNewVumatel({ ...newVumatel, area: e.target.value })}
+                    placeholder="e.g. Newcastle"
+                    className="input-field"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600">Latitude</label>
+                  <input
+                    value={newVumatel.latitude}
+                    onChange={(e) => setNewVumatel({ ...newVumatel, latitude: e.target.value })}
+                    placeholder="-27.7191773"
+                    className="input-field"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600">Longitude</label>
+                  <input
+                    value={newVumatel.longitude}
+                    onChange={(e) => setNewVumatel({ ...newVumatel, longitude: e.target.value })}
+                    placeholder="29.9454771"
+                    className="input-field"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {vumatelMonitors.map((m) => (
+                <div
+                  key={m.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-100 bg-slate-50 p-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{m.area}</p>
+                    <p className="text-xs text-slate-500">
+                      {m.latitude && m.longitude ? `${m.latitude}, ${m.longitude}` : 'No coordinates'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-medium ${
+                        STATUS_COLORS[m.status] || 'bg-slate-100 text-slate-600'
+                      }`}
+                    >
+                      {formatStatus(m.status)}
+                    </span>
+                    <button
+                      onClick={() => testVumatel(m.id)}
+                      disabled={testing === m.id}
+                      className="text-sm font-medium text-telecomBlue hover:underline disabled:opacity-50"
+                    >
+                      {testing === m.id ? <Loader2 size={14} className="animate-spin" /> : <Activity size={14} />}
+                      Test
+                    </button>
+                    <button
+                      onClick={() => remove(m.id)}
+                      className="text-sm font-medium text-red-600 hover:underline"
+                    >
+                      <Trash2 size={14} /> Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {vumatelMonitors.length === 0 && (
+                <p className="py-4 text-center text-sm text-slate-500">No Vumatel locations monitored yet.</p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

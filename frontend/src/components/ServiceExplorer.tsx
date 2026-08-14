@@ -112,8 +112,8 @@ export default function ServiceExplorer() {
           </div>
           <div className="photo-frame overflow-hidden">
             <img
-              src="/images/aerial-site.jpg"
-              alt="Pan Africa Telecom technicians on a tower"
+              src="/images/packages.jpg"
+              alt="Fibre optic broadband connection"
               className="h-56 w-full object-cover brightness-105 contrast-110"
             />
           </div>

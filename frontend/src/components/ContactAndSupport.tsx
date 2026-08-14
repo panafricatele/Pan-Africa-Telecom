@@ -54,8 +54,8 @@ export default function ContactAndSupport() {
 
             <div className="photo-frame mt-6">
               <img
-                src="/images/aerial-site.jpg"
-                alt="Pan Africa Telecom crew on a tower installation"
+                src="/images/support.jpg"
+                alt="Friendly customer support representative"
                 className="h-56 w-full object-cover brightness-105 contrast-110"
               />
             </div>

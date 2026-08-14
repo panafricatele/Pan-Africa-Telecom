@@ -22,7 +22,7 @@ export default function Footer() {
             <p className="mt-1">{COMPANY.icasaLicense}</p>
             <div className="mt-4 flex items-center gap-3">
               <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Proud Member</span>
-              <img src="/images/wapa-logo.jpg" alt="WAPA" className="h-10 w-auto" />
+              <img src="/images/wapa-logo.jpg" alt="WAPA" className="h-16 w-auto" />
             </div>
           </div>
 

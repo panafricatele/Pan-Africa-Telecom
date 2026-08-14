@@ -240,14 +240,9 @@ export default function NetworkStatus() {
                     <ul className="space-y-3">
                       {vumatelResults.map((r) => (
                         <li key={`vumatel-${r.area}`} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <MapPin size={14} className="text-slate-400" />
-                              <span className="font-medium">{r.area}</span>
-                            </div>
-                            {r.latitude && r.longitude && (
-                              <p className="text-xs text-slate-500">{r.latitude}, {r.longitude}</p>
-                            )}
+                          <div className="flex items-center gap-2">
+                            <MapPin size={14} className="text-slate-400" />
+                            <span className="font-medium">{r.area}</span>
                           </div>
                           <span
                             className={`rounded-full px-3 py-1 text-xs font-medium ${

@@ -30,6 +30,14 @@ function AddToCart({ phone }: { phone: Phone }) {
   const inCart = items.find((i) => i.phone.id === phone.id);
   const [qty, setQty] = useState(1);
 
+  if (phone.stock <= 0) {
+    return (
+      <div className="mt-4 flex items-center gap-2">
+        <p className="text-sm font-bold text-red-600">Out of stock</p>
+      </div>
+    );
+  }
+
   if (inCart) {
     return (
       <div className="mt-4 flex items-center gap-3">

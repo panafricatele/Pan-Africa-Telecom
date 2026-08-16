@@ -195,9 +195,16 @@ export function NetworkStatusPanel() {
   const updateWirelessStatus = async (id: string, status: string) => {
     setTesting(id);
     try {
+      const update: { status: string; updated_at: string; note?: null } = {
+        status,
+        updated_at: new Date().toISOString(),
+      };
+      // A note describes why a site is down, so it is cleared when the site recovers.
+      if (status === 'OPERATIONAL') update.note = null;
+
       const { error } = await supabase
         .from('network_status_monitors')
-        .update({ status, updated_at: new Date().toISOString() })
+        .update(update)
         .eq('id', id);
       if (error) throw error;
       await loadMonitors();
@@ -205,6 +212,22 @@ export function NetworkStatusPanel() {
       alert('Error updating wireless status: ' + (err.message || 'Unknown error'));
     } finally {
       setTesting(null);
+    }
+  };
+
+  const updateWirelessNote = async (id: string, note: string) => {
+    const trimmed = note.trim();
+    const current = monitors.find((m) => m.id === id);
+    if ((current?.note || '') === trimmed) return;
+    try {
+      const { error } = await supabase
+        .from('network_status_monitors')
+        .update({ note: trimmed || null, updated_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw error;
+      await loadMonitors();
+    } catch (err: any) {
+      alert('Error updating note: ' + (err.message || 'Unknown error'));
     }
   };
 
@@ -521,7 +544,16 @@ export function NetworkStatusPanel() {
                 >
                   <div className="min-w-0 flex-1">
                     <p className="font-medium">{m.area}</p>
-                    <p className="text-xs text-slate-500">{m.note || 'Fixed wireless site'}</p>
+                    <input
+                      key={`${m.id}-${m.note ?? ''}`}
+                      defaultValue={m.note ?? ''}
+                      onBlur={(e) => updateWirelessNote(m.id, e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') e.currentTarget.blur();
+                      }}
+                      placeholder="Add a note (optional)"
+                      className="mt-1 w-full max-w-md rounded border border-transparent bg-transparent px-1 py-0.5 text-xs text-slate-500 hover:border-slate-200 focus:border-telecomBlue focus:bg-white focus:outline-none"
+                    />
                   </div>
                   <div className="flex items-center gap-3">
                     <span

@@ -6,7 +6,7 @@ export const COMPANY = {
   whatsapp: '0871525695',
   email: 'info@PanAfricaTelecom.co.za',
   portalUrl: 'https://portal.panafricatelecom.co.za',
-  icasaLicense: 'ICASA License No: 2411/CECNS/CECN/FEB/2023 | AS: 328583',
+  icasaLicense: 'ICASA License No: 2411/CECNS/CECN/FEB/2023 | AS: 329467',
   policies: {
     terms: 'https://www.panafricatelecom.co.za/wp-content/uploads/2023/07/General-Terms-Conditions_PAT_FIN-Published.pdf',
     privacy: 'https://www.panafricatelecom.co.za/wp-content/uploads/2023/06/Pan-Africa-Telecom-Pty-Ltd-Privacy-Policy-June-20233-1.pdf',

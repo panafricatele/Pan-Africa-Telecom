@@ -16,7 +16,7 @@ export default function HeroSection() {
           >
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-telecomBlue/30 bg-telecomBlue/10 px-4 py-1.5 text-xs font-semibold text-telecomBlue">
               <span className="h-2 w-2 rounded-full bg-fibreEmerald animate-pulse" />
-              ICASA Licensed ISP • AS {COMPANY.icasaLicense.match(/AS:\s*([0-9]+)/)?.[1] ?? '328583'}
+              ICASA Licensed ISP • AS {COMPANY.icasaLicense.match(/AS:\s*([0-9]+)/)?.[1] ?? '329467'}
             </div>
 
             <h1 className="text-4xl font-extrabold leading-tight md:text-5xl lg:text-6xl">

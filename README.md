@@ -1,6 +1,6 @@
 # Pan Africa Telecom — Website Redesign
 
-A modern, interactive redesign for **Pan Africa Telecom** (ICASA License No: `2411/CECNS/CECN/FEB/2023`, AS: `328583`).
+A modern, interactive redesign for **Pan Africa Telecom** (ICASA License No: `2411/CECNS/CECN/FEB/2023`, AS: `329467`).
 
 ## Structure
 

@@ -32,7 +32,7 @@ const COMPANY = {
   whatsapp: "0871525695",
   email: "info@PanAfricaTelecom.co.za",
   portalUrl: "https://portal.panafricatelecom.co.za",
-  icasa: "ICASA License No: 2411/CECNS/CECN/FEB/2023 | AS: 328583",
+  icasa: "ICASA License No: 2411/CECNS/CECN/FEB/2023 | AS: 329467",
 };
 
 const fmt = (n) =>

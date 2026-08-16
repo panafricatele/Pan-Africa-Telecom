@@ -154,7 +154,13 @@ function PackagesPanel() {
   const [packages, setPackages] = useState<PkgRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<PkgRow | null>(null);
+  const [editKey, setEditKey] = useState(0);
   const [filterCat, setFilterCat] = useState<string>('');
+
+  const openEditor = (pkg: PkgRow) => {
+    setEditing(pkg);
+    setEditKey((k) => k + 1);
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -191,7 +197,7 @@ function PackagesPanel() {
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <button onClick={() => setEditing(emptyPkg())} className="btn-primary text-sm">
+        <button onClick={() => openEditor(emptyPkg())} className="btn-primary text-sm">
           <Plus size={16} /> Add Package
         </button>
         <select
@@ -208,6 +214,7 @@ function PackagesPanel() {
 
       {editing && (
         <PackageForm
+          key={editKey}
           initial={editing}
           onSave={save}
           onCancel={() => setEditing(null)}
@@ -244,7 +251,7 @@ function PackagesPanel() {
                   <td className="px-4 py-3">{p.speed || '—'}</td>
                   <td className="px-4 py-3">{p.uncapped ? 'Yes' : 'No'}</td>
                   <td className="flex justify-end gap-2 px-4 py-3">
-                    <button onClick={() => setEditing(p)} className="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-telecomBlue">
+                    <button onClick={() => openEditor(p)} className="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-telecomBlue">
                       <Pencil size={15} />
                     </button>
                     <button onClick={() => remove(p.id)} className="rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500">
@@ -345,7 +352,13 @@ function ProductsPanel() {
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<ProductRow | null>(null);
+  const [editKey, setEditKey] = useState(0);
   const [filterCat, setFilterCat] = useState<string>('');
+
+  const openEditor = (product: ProductRow) => {
+    setEditing(product);
+    setEditKey((k) => k + 1);
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -382,7 +395,7 @@ function ProductsPanel() {
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <button onClick={() => setEditing(emptyProduct())} className="btn-primary text-sm">
+        <button onClick={() => openEditor(emptyProduct())} className="btn-primary text-sm">
           <Plus size={16} /> Add Product
         </button>
         <select
@@ -399,6 +412,7 @@ function ProductsPanel() {
 
       {editing && (
         <ProductForm
+          key={editKey}
           initial={editing}
           onSave={save}
           onCancel={() => setEditing(null)}
@@ -440,7 +454,7 @@ function ProductsPanel() {
                   <td className="px-4 py-3">R{p.price.toLocaleString()}</td>
                   <td className="px-4 py-3">{p.stock}</td>
                   <td className="flex justify-end gap-2 px-4 py-3">
-                    <button onClick={() => setEditing(p)} className="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-telecomBlue">
+                    <button onClick={() => openEditor(p)} className="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-telecomBlue">
                       <Pencil size={15} />
                     </button>
                     <button onClick={() => remove(p.id)} className="rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500">

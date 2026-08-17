@@ -44,9 +44,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [session, fetchProfile]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
+    // The profile carries the admin role, so it must be resolved before
+    // loading is cleared. Otherwise route guards evaluate a null profile and
+    // redirect a genuine admin away on a direct visit or refresh.
+    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
       setSession(s);
-      if (s?.user) fetchProfile(s.user.id);
+      if (s?.user) await fetchProfile(s.user.id);
       setLoading(false);
     }).catch(() => {
       setLoading(false);
@@ -55,7 +58,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       if (s?.user) {
-        fetchProfile(s.user.id);
+        // Stay in a loading state until the role is known, so that navigating
+        // straight to an admin route after signing in is not rejected.
+        setLoading(true);
+        fetchProfile(s.user.id).finally(() => setLoading(false));
       } else {
         setProfile(null);
       }

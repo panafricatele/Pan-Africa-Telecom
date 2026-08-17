@@ -25,3 +25,4 @@ frontend/.vite/
 
 # PDF generation intermediates
 .pdf-shots/
+documents/screenshots/

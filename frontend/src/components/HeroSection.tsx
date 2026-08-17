@@ -26,7 +26,7 @@ export default function HeroSection() {
             </h1>
 
             <p className="mt-6 max-w-xl text-lg text-slate-600">
-              From Newcastle across KwaZulu-Natal, our team designs, installs and supports Fibre, Fixed Wireless, LTE and ICT networks for homes, schools, businesses and communities. No chatbots — just local engineers and a 24/7 network operations centre.
+              We collaborate with smart and creative people to build awesome internet service provider to connect unserved & underserved in Africa to the Internet
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">

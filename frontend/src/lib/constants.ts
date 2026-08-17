@@ -2,7 +2,7 @@ export const COMPANY = {
   name: 'Pan Africa Telecom',
   slogan: 'Connecting the Unserved & Underserved of Sub-Saharan Africa',
   address: '26 Marconi Drive, Riverside Industrial, Newcastle, 2940, South Africa',
-  phone: '034-0085055',
+  phone: '034-0085088',
   whatsapp: '0871525695',
   email: 'info@PanAfricaTelecom.co.za',
   portalUrl: 'https://portal.panafricatelecom.co.za',

@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import Support from './pages/Support';
@@ -10,15 +11,18 @@ import NetworkStatus from './pages/NetworkStatus';
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/shop" element={<Shop />} />
-      <Route path="/support" element={<Support />} />
-      <Route path="/network-status" element={<NetworkStatus />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/admin" element={<AdminDashboard />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/support" element={<Support />} />
+        <Route path="/network-status" element={<NetworkStatus />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+      </Routes>
+      <Analytics />
+    </>
   );
 }

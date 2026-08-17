@@ -1,0 +1,26 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Globe background -->
+  <circle cx="256" cy="256" r="240" fill="white" stroke="#1e3a8a" stroke-width="16"/>
+  
+  <!-- Continents -->
+  <!-- North America -->
+  <path d="M 80 120 Q 100 100 120 110 Q 130 130 110 150 Q 90 140 80 120" fill="#1e3a8a"/>
+  
+  <!-- South America -->
+  <path d="M 110 200 Q 130 190 140 220 Q 135 260 110 270 Q 100 240 110 200" fill="#1e3a8a"/>
+  
+  <!-- Europe -->
+  <path d="M 240 100 Q 280 95 300 120 Q 290 140 260 135 Q 240 125 240 100" fill="#1e3a8a"/>
+  
+  <!-- Africa (highlighted in light blue) -->
+  <path d="M 240 150 Q 320 140 340 200 L 350 280 Q 340 360 300 380 Q 240 370 220 300 Q 210 220 240 150" fill="#0ea5e9"/>
+  
+  <!-- Middle East -->
+  <path d="M 320 160 Q 360 170 370 200 Q 360 220 330 210 Q 320 190 320 160" fill="#1e3a8a"/>
+  
+  <!-- Asia -->
+  <path d="M 340 120 Q 400 110 420 150 Q 430 200 400 220 Q 360 210 340 180 Q 340 150 340 120" fill="#1e3a8a"/>
+  
+  <!-- Oceania -->
+  <path d="M 380 300 Q 400 310 410 330 Q 400 350 380 340 Q 370 320 380 300" fill="#1e3a8a"/>
+</svg>

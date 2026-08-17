@@ -26,3 +26,9 @@ frontend/.vite/
 # PDF generation intermediates
 .pdf-shots/
 documents/screenshots/
+
+# Credential documents - never commit
+*-credentials.md
+*-Credentials.md
+login-credentials.md
+

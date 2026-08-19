@@ -1,7 +1,7 @@
 import emailjs from 'emailjs-com';
 
 const SERVICE_ID = 'service_bckjom5';
-const TEMPLATE_ID = 'service_bckjom5';
+const TEMPLATE_ID = 'template_aini98f';
 const PUBLIC_KEY = 'GWQ7ImOwiHaXqSFDG';
 
 emailjs.init(PUBLIC_KEY);

@@ -5,6 +5,7 @@ import { phonesApi } from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { Phone } from '../types';
 import { useCart } from '../cart/CartContext';
+import { sendEnquiry } from '../lib/emailjs';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import WhatsAppFloat from '../components/WhatsAppFloat';
@@ -191,25 +192,17 @@ export default function Shop() {
     e.preventDefault();
     setEnquiryLoading(true);
     try {
-      const response = await fetch('/api/v1/leads/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: enquiryForm.fullName,
-          email: enquiryForm.email,
-          phone: enquiryForm.phone,
-          serviceInterest: `Product Enquiry: ${enquiryPhone?.name}`,
-          location: enquiryForm.address,
-          message: enquiryForm.details,
-        }),
+      await sendEnquiry({
+        fullName: enquiryForm.fullName,
+        email: enquiryForm.email,
+        phone: enquiryForm.phone,
+        location: enquiryForm.address,
+        serviceInterest: `Product Enquiry: ${enquiryPhone?.name}`,
+        message: enquiryForm.details,
       });
-      if (response.ok) {
-        setEnquirySuccess(true);
-        setEnquiryForm({ fullName: '', email: '', phone: '', address: '', details: '' });
-        setTimeout(() => setEnquiryPhone(null), 2500);
-      } else {
-        alert('Failed to send enquiry. Please try again.');
-      }
+      setEnquirySuccess(true);
+      setEnquiryForm({ fullName: '', email: '', phone: '', address: '', details: '' });
+      setTimeout(() => setEnquiryPhone(null), 2500);
     } catch (err) {
       alert('Error sending enquiry. Please try again.');
     } finally {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { CheckCircle, Minus, Plus, ShoppingCart } from 'lucide-react';
+import { CheckCircle, Minus, Plus, ShoppingCart, X } from 'lucide-react';
 import { phonesApi } from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { Phone } from '../types';
@@ -25,15 +25,21 @@ function PhoneThumb({ image, name }: { image: string; name: string }) {
   );
 }
 
-function AddToCart({ phone }: { phone: Phone }) {
+function AddToCart({ phone, onOpenEnquiry }: { phone: Phone; onOpenEnquiry: (phone: Phone) => void }) {
   const { addItem, items, updateQuantity, removeItem } = useCart();
   const inCart = items.find((i) => i.phone.id === phone.id);
   const [qty, setQty] = useState(1);
 
   if (phone.stock <= 0) {
     return (
-      <div className="mt-4 flex items-center gap-2">
+      <div className="mt-4 flex items-center gap-3">
         <p className="text-sm font-bold text-red-600">Out of stock</p>
+        <button
+          onClick={() => onOpenEnquiry(phone)}
+          className="text-sm font-medium text-telecomBlue hover:underline"
+        >
+          Email for enquiries
+        </button>
       </div>
     );
   }
@@ -88,7 +94,7 @@ function AddToCart({ phone }: { phone: Phone }) {
   );
 }
 
-function ProductGrid({ products, onSelect }: { products: Phone[]; onSelect: (phone: Phone) => void }) {
+function ProductGrid({ products, onSelect, onOpenEnquiry }: { products: Phone[]; onSelect: (phone: Phone) => void; onOpenEnquiry: (phone: Phone) => void }) {
   return (
     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
       {products.map((phone) => (
@@ -122,7 +128,7 @@ function ProductGrid({ products, onSelect }: { products: Phone[]; onSelect: (pho
               View specs
             </button>
 
-            <AddToCart phone={phone} />
+            <AddToCart phone={phone} onOpenEnquiry={onOpenEnquiry} />
           </div>
         </div>
       ))}
@@ -141,6 +147,9 @@ export default function Shop() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selected, setSelected] = useState<Phone | null>(null);
+  const [enquiryPhone, setEnquiryPhone] = useState<Phone | null>(null);
+  const [enquiryForm, setEnquiryForm] = useState({ fullName: '', email: '', phone: '', address: '', details: '' });
+  const [enquiryLoading, setEnquiryLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchParams, setSearchParams] = useSearchParams();
   const { items: cartItems, clearCart } = useCart();
@@ -170,6 +179,40 @@ export default function Shop() {
     selectedCategory === 'all'
       ? phones
       : phones.filter((p) => (p.category ?? 'phone') === selectedCategory);
+
+  const handleOpenEnquiry = (phone: Phone) => {
+    setEnquiryPhone(phone);
+    setEnquiryForm({ fullName: '', email: '', phone: '', address: '', details: '' });
+  };
+
+  const handleSubmitEnquiry = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEnquiryLoading(true);
+    try {
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: enquiryForm.fullName,
+          email: enquiryForm.email,
+          phone: enquiryForm.phone,
+          serviceInterest: `Product Enquiry: ${enquiryPhone?.name}`,
+          location: enquiryForm.address,
+          message: enquiryForm.details,
+        }),
+      });
+      if (response.ok) {
+        setEnquiryPhone(null);
+        alert('Enquiry sent successfully! We will contact you soon.');
+      } else {
+        alert('Failed to send enquiry. Please try again.');
+      }
+    } catch (err) {
+      alert('Error sending enquiry. Please try again.');
+    } finally {
+      setEnquiryLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
@@ -218,7 +261,7 @@ export default function Shop() {
             ) : (
               <>
                 {filteredProducts.length > 0 ? (
-                  <ProductGrid products={filteredProducts} onSelect={setSelected} />
+                  <ProductGrid products={filteredProducts} onSelect={setSelected} onOpenEnquiry={handleOpenEnquiry} />
                 ) : (
                   <p className="py-12 text-center text-slate-500">No products found in this category.</p>
                 )}
@@ -261,6 +304,71 @@ export default function Shop() {
               <button onClick={() => setSelected(null)} className="btn-secondary mt-6 w-full text-sm">
                 Close
               </button>
+            </div>
+          </div>
+        )}
+
+        {enquiryPhone && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-md"
+            onClick={(e) => e.target === e.currentTarget && setEnquiryPhone(null)}
+          >
+            <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+              <div className="mb-4 flex items-start justify-between">
+                <div>
+                  <h3 className="text-xl font-bold">Enquiry for {enquiryPhone.name}</h3>
+                  <p className="mt-1 text-sm text-slate-500">{enquiryPhone.description}</p>
+                </div>
+                <button onClick={() => setEnquiryPhone(null)} className="rounded p-1 text-slate-400 hover:bg-slate-100">
+                  <X size={20} />
+                </button>
+              </div>
+              <form onSubmit={handleSubmitEnquiry} className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Full name"
+                  required
+                  value={enquiryForm.fullName}
+                  onChange={(e) => setEnquiryForm({ ...enquiryForm, fullName: e.target.value })}
+                  className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm placeholder-slate-400 focus:border-telecomBlue focus:outline-none"
+                />
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  required
+                  value={enquiryForm.email}
+                  onChange={(e) => setEnquiryForm({ ...enquiryForm, email: e.target.value })}
+                  className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm placeholder-slate-400 focus:border-telecomBlue focus:outline-none"
+                />
+                <input
+                  type="tel"
+                  placeholder="Phone number"
+                  value={enquiryForm.phone}
+                  onChange={(e) => setEnquiryForm({ ...enquiryForm, phone: e.target.value })}
+                  className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm placeholder-slate-400 focus:border-telecomBlue focus:outline-none"
+                />
+                <input
+                  type="text"
+                  placeholder="Town / street address"
+                  value={enquiryForm.address}
+                  onChange={(e) => setEnquiryForm({ ...enquiryForm, address: e.target.value })}
+                  className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm placeholder-slate-400 focus:border-telecomBlue focus:outline-none"
+                />
+                <textarea
+                  placeholder="Any extra details..."
+                  value={enquiryForm.details}
+                  onChange={(e) => setEnquiryForm({ ...enquiryForm, details: e.target.value })}
+                  className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm placeholder-slate-400 focus:border-telecomBlue focus:outline-none"
+                  rows={4}
+                />
+                <button
+                  type="submit"
+                  disabled={enquiryLoading}
+                  className="btn-primary w-full text-sm disabled:opacity-50"
+                >
+                  {enquiryLoading ? 'Sending...' : 'Send enquiry'}
+                </button>
+              </form>
             </div>
           </div>
         )}

@@ -26,5 +26,10 @@ export async function sendEnquiry(data: EnquiryData): Promise<void> {
     message: data.message || 'No additional details',
   };
 
-  await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
+  try {
+    await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
+  } catch (error: any) {
+    console.error('EmailJS Error:', error);
+    throw new Error(error.text || error.message || 'Failed to send email');
+  }
 }

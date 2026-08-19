@@ -1,8 +1,8 @@
 import emailjs from 'emailjs-com';
 
-const SERVICE_ID = 'service_panafricatelecom';
-const TEMPLATE_ID = 'template_enquiry';
-const PUBLIC_KEY = 'YOUR_EMAILJS_PUBLIC_KEY';
+const SERVICE_ID = 'service_bckjom5';
+const TEMPLATE_ID = 'service_bckjom5';
+const PUBLIC_KEY = 'GWQ7ImOwiHaXqSFDG';
 
 emailjs.init(PUBLIC_KEY);
 

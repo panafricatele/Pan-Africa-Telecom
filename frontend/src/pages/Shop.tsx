@@ -150,6 +150,7 @@ export default function Shop() {
   const [enquiryPhone, setEnquiryPhone] = useState<Phone | null>(null);
   const [enquiryForm, setEnquiryForm] = useState({ fullName: '', email: '', phone: '', address: '', details: '' });
   const [enquiryLoading, setEnquiryLoading] = useState(false);
+  const [enquirySuccess, setEnquirySuccess] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchParams, setSearchParams] = useSearchParams();
   const { items: cartItems, clearCart } = useCart();
@@ -183,6 +184,7 @@ export default function Shop() {
   const handleOpenEnquiry = (phone: Phone) => {
     setEnquiryPhone(phone);
     setEnquiryForm({ fullName: '', email: '', phone: '', address: '', details: '' });
+    setEnquirySuccess(false);
   };
 
   const handleSubmitEnquiry = async (e: React.FormEvent) => {
@@ -202,8 +204,9 @@ export default function Shop() {
         }),
       });
       if (response.ok) {
-        setEnquiryPhone(null);
-        alert('Enquiry sent successfully! We will contact you soon.');
+        setEnquirySuccess(true);
+        setEnquiryForm({ fullName: '', email: '', phone: '', address: '', details: '' });
+        setTimeout(() => setEnquiryPhone(null), 2500);
       } else {
         alert('Failed to send enquiry. Please try again.');
       }
@@ -323,6 +326,11 @@ export default function Shop() {
                   <X size={20} />
                 </button>
               </div>
+              {enquirySuccess ? (
+                <div className="rounded-lg bg-fibreEmerald/10 px-4 py-3 text-fibreEmerald">
+                  <p className="font-medium">Thanks! We have received your request and will contact you shortly.</p>
+                </div>
+              ) : (
               <form onSubmit={handleSubmitEnquiry} className="space-y-4">
                 <input
                   type="text"
@@ -369,6 +377,7 @@ export default function Shop() {
                   {enquiryLoading ? 'Sending...' : 'Send enquiry'}
                 </button>
               </form>
+              )}
             </div>
           </div>
         )}
